@@ -105,6 +105,8 @@ public class MenuPrincipal {
         Scene menuScene = new Scene(root, 800, 700);
         menuScene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
         primaryStage.setScene(menuScene);
+        
+        primaryStage.centerOnScreen();
     }
 
     private Button createMenuButton(String text) {

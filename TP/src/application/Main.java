@@ -8,7 +8,7 @@ import javafx.scene.layout.BorderPane;
 public class Main extends Application {
     static BorderPane root;
 
-    // "Back" buttons are still not working. Update needed.
+    // "Back" buttons are still not working (the ones that take you home). Update needed.
     
     @Override
     public void start(Stage primaryStage) {

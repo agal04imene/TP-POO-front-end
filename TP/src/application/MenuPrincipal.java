@@ -74,12 +74,11 @@ public class MenuPrincipal {
             manageTestsPage.load(scene);
         });
         
-     // Option : Gestion des Tests et Anamnèses
+        // Option : Se déconnecter de l'application
         Button logOutButton = createMenuButton("Se déconnecter de l'application");
-        manageTestsButton.setOnAction(e -> {
-            // Naviguer vers la Page de Gestion des Tests et Anamnèses
-            LogOutPage logOutPage = new LogOutPage(primaryStage);
-            logOutPage.load(scene);
+        logOutButton.setOnAction(e -> {
+            HomePage homePage = new HomePage(primaryStage);
+            homePage.load(scene);
         });
 
         menuOptions.getChildren().addAll(
@@ -102,7 +101,7 @@ public class MenuPrincipal {
         });
         root.setBottom(backButton);
 
-        Scene menuScene = new Scene(root, 800, 700);
+        Scene menuScene = new Scene(root, 800, 650);
         menuScene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
         primaryStage.setScene(menuScene);
         

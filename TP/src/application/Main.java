@@ -22,6 +22,7 @@ public class Main extends Application {
 
             HomePage homePage = new HomePage(primaryStage);
             homePage.load(scene);
+            
         } catch (Exception e) {
             e.printStackTrace();
         }

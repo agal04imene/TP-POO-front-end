@@ -1,0 +1,50 @@
+/* JavaFX CSS - Leave this comment until you have at least create one rule which uses -fx-Property */
+
+#topLabel {
+    -fx-font-size: 20px;
+    -fx-text-fill: #FC4100;
+    -fx-font-family: "Ubuntu", Tahoma, Geneva, Verdana, sans-serif;
+    -fx-font-weight: bold;
+    -fx-background-color: transparent; /* Transparent background for labels */
+}
+
+#bottomLabel {
+	-fx-font-size: 16px;
+	-fx-font-family: "Ubuntu", Tahoma, Geneva, Verdana, sans-serif;
+	-fx-font-weight: bold;
+	-fx-background-color: transparent; /* Transparent background for labels */
+}
+
+#topHbox, #bottomHbox {
+    -fx-background-color: white;
+    -fx-padding: 15px;
+    -fx-border-color: #f0f0f0;
+    -fx-border-width: 1px;
+}
+
+#centerVBox {
+	-fx-background-color : white;
+}
+
+#buttonsHBox {
+	-fx-background-color : white;
+}
+
+.button-style {
+    -fx-font-size: 14px;
+    -fx-text-fill: #ffffff;
+    -fx-background-color: #FC4100;
+    -fx-padding: 10px;
+    -fx-border-color: #d35400;
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+
+.button-style:hover {
+    -fx-background-color: #d35400;
+}
+
+.button-style:pressed {
+    -fx-background-color: #FFC55A;
+}

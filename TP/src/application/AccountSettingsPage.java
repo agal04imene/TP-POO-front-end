@@ -55,11 +55,19 @@ public class AccountSettingsPage {
             EditPersonalInfoPage editPersonalInfoPage = new EditPersonalInfoPage(primaryStage);
             editPersonalInfoPage.load(scene);
         });
+        
+        // Option : Supprimer le compte
+        Button deleteAccountButton = createMenuButton("Supprimer le compte");
+        deleteAccountButton.setOnAction(e -> {
+        	DeleteAccountPage deleteAccountPage = new DeleteAccountPage(primaryStage);
+        	deleteAccountPage.load(scene);
+        });
 
         menuOptions.getChildren().addAll(
                 changePasswordButton,
                 changeEmailButton,
-                editPersonalInfoButton
+                editPersonalInfoButton,
+                deleteAccountButton
         );
 
         root.setCenter(menuOptions);

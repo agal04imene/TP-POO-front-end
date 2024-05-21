@@ -1,6 +1,8 @@
 package application;
 
 import java.io.FileInputStream;
+
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -65,8 +67,11 @@ public class HomePage {
             signInButton.getStyleClass().add("button-style");
             Button signUpButton = new Button("Sign Up");
             signUpButton.getStyleClass().add("button-style");
+            Button logOutButton = new Button("Log Out");
+            logOutButton.getStyleClass().add("button-style");
+            
 
-            HBox buttonsHBox = new HBox(20, signInButton, signUpButton);
+            HBox buttonsHBox = new HBox(20, signInButton, signUpButton,logOutButton);
             buttonsHBox.setId("buttonsBox");
             buttonsHBox.setAlignment(Pos.CENTER);
             buttonsHBox.setPadding(new Insets(20));
@@ -85,6 +90,10 @@ public class HomePage {
                     SignUpPage signUpPage = new SignUpPage(primaryStage);
                     signUpPage.load(scene);
                 }
+            });
+            
+            logOutButton.setOnAction(e -> {
+            	Platform.exit(); // Close the JavaFX application
             });
 
             centerVBox.getChildren().addAll(centerText, imageView, buttonsHBox);

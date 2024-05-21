@@ -1,5 +1,6 @@
 package application;
 
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -77,8 +78,7 @@ public class MenuPrincipal {
         // Option : Se déconnecter de l'application
         Button logOutButton = createMenuButton("Se déconnecter de l'application");
         logOutButton.setOnAction(e -> {
-            HomePage homePage = new HomePage(primaryStage);
-            homePage.load(scene);
+        	Platform.exit(); // Close the JavaFX application
         });
 
         menuOptions.getChildren().addAll(

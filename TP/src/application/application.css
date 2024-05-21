@@ -37,14 +37,77 @@
     -fx-padding: 10px;
     -fx-border-color: #d35400;
     -fx-border-width: 1px;
-    -fx-border-radius: 5px;
-    -fx-background-radius: 5px;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-min-width: 50px;
+    -fx-padding: 10px 20px;
 }
 
 .button-style:hover {
-    -fx-background-color: #d35400;
+    -fx-background-color: #FF5733;
+    -fx-cursor: hand;
 }
 
 .button-style:pressed {
     -fx-background-color: #FFC55A;
+}
+
+.button-style:disabled {
+    -fx-opacity: 0.5;
+}
+
+
+.menu-button {
+    -fx-background-color: #FC4100;
+    -fx-text-fill: white;
+    -fx-font-size: 18px;
+    -fx-font-family: "Ubuntu";
+    -fx-background-radius: 10px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 10, 0, 0, 0);
+}
+
+.menu-button:hover {
+    -fx-background-color: #FF5733;
+    -fx-cursor: hand;
+}
+
+.menu-button:pressed {
+    -fx-background-color: #FFC55A;
+}
+
+
+.change-container {
+    -fx-padding: 20px;
+    -fx-spacing: 10px;
+}
+
+.change-title {
+    -fx-text-fill: #00215E; /* Dark blue */
+    -fx-font-family: "Ubuntu", Tahoma, Geneva, Verdana, sans-serif;
+    -fx-font-size: 30px;
+    -fx-font-weight: bold;
+}
+
+.text-field {
+    -fx-padding: 10px;
+    -fx-pref-width: 300px;
+    -fx-font-size: 14px;
+}
+
+.change-button-bar {
+    -fx-spacing: 10px;
+}
+
+.change-button {
+    -fx-padding: 10px 20px;
+    -fx-font-size: 14px;
+    -fx-background-color: #FC4100; /* Orange */
+    -fx-text-fill: white;
+    -fx-background-radius: 5px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 10, 0, 0, 0);
+}
+
+.change-button:hover {
+    -fx-background-color: #FF5733;
 }

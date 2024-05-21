@@ -74,8 +74,8 @@ public class HomePage {
             signInButton.setOnAction(new EventHandler<ActionEvent>() {
                 public void handle(ActionEvent arg0) {
                     // Navigate to Sign In Page
-                    SignInPage signInPage = new SignInPage(primaryStage);
-                    signInPage.load(scene);
+                	SignInPage signInPage = new SignInPage(primaryStage);
+                	signInPage.load(scene);
                 }
             });
 

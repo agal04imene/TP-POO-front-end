@@ -52,6 +52,12 @@ public class SignInPage {
         HBox buttonBox = new HBox(10);
         buttonBox.setAlignment(Pos.CENTER);
         buttonBox.getChildren().addAll(signInButton);
+        
+        // JUST TESTING THE MENU
+        signInButton.setOnAction(e -> {
+            MenuPrincipal menu = new MenuPrincipal(primaryStage);
+            menu.load(scene);
+        });
 
         form.getChildren().addAll(emailField, passwordField, buttonBox);
 

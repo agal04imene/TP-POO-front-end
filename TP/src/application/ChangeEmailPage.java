@@ -3,13 +3,16 @@ package application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+
 
 public class ChangeEmailPage {
     private Stage primaryStage;
@@ -65,14 +68,17 @@ public class ChangeEmailPage {
             String confirmNewEmail = confirmNewEmailField.getText();
 
             if (!isValidEmail(oldEmail)) {
-                System.out.println("Veuillez saisir une ancienne adresse e-mail valide.");
+            	// Another condition needs to be added here (correct e-mail of the account) !!
+                showAlert("Veuillez saisir une ancienne adresse e-mail valide.");
             } else if (!isValidEmail(newEmail)) {
-                System.out.println("Veuillez saisir une nouvelle adresse e-mail valide.");
+            	showAlert("Veuillez saisir une nouvelle adresse e-mail valide.");
             } else if (!newEmail.equals(confirmNewEmail)) {
-                System.out.println("Les nouvelles adresses e-mail ne correspondent pas.");
+            	showAlert("Les nouvelles adresses e-mail ne correspondent pas.");
             } else {
-                // Perform action on valid emails
-                System.out.println("Changement d'adresse e-mail effectué avec succès.");
+                // add back-end logic here !!
+                showAlert("Changement d'adresse e-mail effectué avec succès.");
+                AccountSettingsPage accountSettingsPage = new AccountSettingsPage(primaryStage);
+                accountSettingsPage.load(scene);
             }
         });
 
@@ -107,4 +113,14 @@ public class ChangeEmailPage {
         String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
         return email.matches(emailRegex);
     }
+    
+    private void showAlert(String message) {
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle("Information");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+
 }

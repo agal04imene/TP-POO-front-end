@@ -72,7 +72,14 @@ public class SignUpPage {
         // Sign up button
         Button signUpButton = new Button("Sign Up");
         signUpButton.getStyleClass().add("button-style");
-
+        
+        signUpButton.setOnAction(e -> {
+        	// add your back-end logic here !!
+        	// in the end, show an alert then go back to the sign-in page
+        	SignInPage signInPage = new SignInPage(primaryStage);
+        	signInPage.load(scene);
+        });
+        
         HBox buttonBox = new HBox(10);
         buttonBox.setAlignment(Pos.CENTER);
         buttonBox.getChildren().addAll(signUpButton);

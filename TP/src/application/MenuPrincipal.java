@@ -63,16 +63,22 @@ public class MenuPrincipal {
         Button removePatientButton = createMenuButton("Supprimer le dossier d'un Patient");
         removePatientButton.setOnAction(e -> {
             // Naviguer vers la Page de Suppression d'un Patient
-            RemovePatientPage removePatientPage = new RemovePatientPage(primaryStage);
-            removePatientPage.load(scene);
+            //RemovePatientPage removePatientPage = new RemovePatientPage(primaryStage);
+            //removePatientPage.load(scene);
+        	
+        	ObjectifsEtScores statsPage = new ObjectifsEtScores();
+            statsPage.start(new Stage());
         });
 
         // Option : Gestion des Tests et Anamnèses
         Button manageTestsButton = createMenuButton("Gestion des Tests et Anamnèses");
         manageTestsButton.setOnAction(e -> {
             // Naviguer vers la Page de Gestion des Tests et Anamnèses
-            ManageTestsPage manageTestsPage = new ManageTestsPage(primaryStage);
-            manageTestsPage.load(scene);
+            //ManageTestsPage manageTestsPage = new ManageTestsPage(primaryStage);
+            //manageTestsPage.load(scene);
+            
+            StatsFichesDeSuivi statsPage = new StatsFichesDeSuivi();
+            statsPage.start(new Stage());
         });
         
         // Option : Se déconnecter de l'application

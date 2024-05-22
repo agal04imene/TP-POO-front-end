@@ -138,3 +138,7 @@
     -fx-font-weight: bold;
     -fx-text-fill: #FF0000; 
 }
+
+.custom-bar-chart {
+    -fx-padding: 0 10px; /* Add padding to create space between bars */
+}

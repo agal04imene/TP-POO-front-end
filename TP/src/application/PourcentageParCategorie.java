@@ -21,7 +21,7 @@ public class PourcentageParCategorie extends Application {
         // Create PieChart data
         PieChart.Data NeuroDevData = new PieChart.Data("Troubles Neuro-dévloppemental", NeuroDev);
         PieChart.Data DegData = new PieChart.Data("Troubles De déglutition", Deglutition);
-        PieChart.Data CognData = new PieChart.Data("Troubles Congnitif", Cognitif);
+        PieChart.Data CognData = new PieChart.Data("Troubles Cognitif", Cognitif);
 
         // Create a PieChart
         PieChart pieChart = new PieChart();

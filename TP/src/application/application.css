@@ -56,6 +56,12 @@
     -fx-opacity: 0.5;
 }
 
+.label-style {
+	-fx-font-size: 16px;
+    -fx-font-family: 'Ubuntu';
+    -fx-text-alignment: center;
+}
+
 
 .menu-button {
     -fx-background-color: #FC4100;

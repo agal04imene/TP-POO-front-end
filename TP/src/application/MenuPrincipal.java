@@ -71,9 +71,9 @@ public class MenuPrincipal {
         Button manageTestsButton = createMenuButton("Gestion des Tests et Anamnèses");
         manageTestsButton.setOnAction(e -> {
             // Naviguer vers la Page de Gestion des Tests et Anamnèses
-            ManageTestsPage manageTestsPage = new ManageTestsPage(primaryStage);
-            manageTestsPage.load(scene);
-            
+        	ManageTestsPage manageTestsPage = new ManageTestsPage();
+            Stage stage = new Stage();
+            manageTestsPage.start(stage);
         });
         
         // Option : Statistiques sur les Patients

@@ -74,7 +74,6 @@ public class AccountSettingsPage {
 
         // Bouton Retour
         Button backButton = new Button("Retour");
-        backButton.getStyleClass().add("button-style");
         backButton.setOnAction(e -> {
             MenuPrincipal menuPage = new MenuPrincipal(primaryStage);
             menuPage.load(scene);
@@ -90,7 +89,6 @@ public class AccountSettingsPage {
 
     private Button createMenuButton(String text) {
         Button button = new Button(text);
-        button.getStyleClass().add("menu-button");
         button.setPrefWidth(500);
         button.setPrefHeight(60);
         return button;

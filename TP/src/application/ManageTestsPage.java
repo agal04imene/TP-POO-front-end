@@ -83,7 +83,19 @@ public class ManageTestsPage extends Application {
             ajoutQuestionPage.start(stage);
         });
         
+        supprQuestionLabel.setOnMouseClicked(e -> {
+            // Navigation
+        	SupprQuestionPage supprQuestionPage = new SupprQuestionPage();
+            Stage stage = new Stage();
+            supprQuestionPage.start(stage);
+        });
         
+        modifQuestionLabel.setOnMouseClicked(e -> {
+            // Navigation
+        	ModifQuestionPage modifQuestionPage = new ModifQuestionPage();
+            Stage stage = new Stage();
+            modifQuestionPage.start(stage);
+        });
         
         
         StackPane root = new StackPane(accordion);

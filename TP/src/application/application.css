@@ -167,93 +167,6 @@
     -fx-spacing: 10px;
 }
 
-/* 
-.button-style {
-    -fx-font-size: 14px;
-    -fx-text-fill: #ffffff;
-    -fx-background-color: #FC4100;
-    -fx-padding: 10px;
-    -fx-border-color: #d35400;
-    -fx-border-width: 1px;
-    -fx-border-radius: 10px;
-    -fx-background-radius: 10px;
-    -fx-min-width: 50px;
-    -fx-padding: 10px 20px;
-}
-
-.button-style:hover {
-    -fx-background-color: #FF5733;
-    -fx-cursor: hand;
-}
-
-.button-style:pressed {
-    -fx-background-color: #FFC55A;
-}
-
-.label-style {
-	-fx-font-size: 16px;
-    -fx-font-family: 'Ubuntu';
-    -fx-text-alignment: center;
-}
-
-
-.menu-button {
-    -fx-background-color: #FC4100;
-    -fx-text-fill: white;
-    -fx-font-size: 18px;
-    -fx-font-family: "Ubuntu";
-    -fx-background-radius: 10px;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 10, 0, 0, 0);
-}
-
-.menu-button:hover {
-    -fx-background-color: #FF5733;
-    -fx-cursor: hand;
-}
-
-.menu-button:pressed {
-    -fx-background-color: #FFC55A;
-}
-
-
-.change-container {
-    -fx-padding: 20px;
-    -fx-spacing: 10px;
-}
-
-.change-title {
-    -fx-text-fill: #00215E;
-    -fx-font-family: "Ubuntu", Tahoma, Geneva, Verdana, sans-serif;
-    -fx-font-size: 30px;
-    -fx-font-weight: bold;
-}
-
-.text-field {
-    -fx-padding: 10px;
-    -fx-pref-width: 300px;
-    -fx-font-size: 14px;
-}
-
-.change-button-bar {
-    -fx-spacing: 10px;
-}
-
-.change-button, .popup-button, .delete-button {
-    -fx-padding: 10px 20px;
-    -fx-font-size: 14px;
-    -fx-background-color: #FC4100; 
-    -fx-text-fill: white;
-    -fx-background-radius: 5px;
-    -fx-cursor: hand;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 10, 0, 0, 0);
-}
-
-.change-button:hover, .popup-button:hover, .delete-button:hover {
-    -fx-background-color: #FF5733;
-}
-
-*/
-
 .delete-title {
     -fx-font-size: 24px;
     -fx-font-weight: bold;
@@ -283,4 +196,28 @@
 
 .custom-bar-chart {
     -fx-padding: 0 10px; /* Add padding to create space between bars */
+}
+
+
+.choix-button {
+    -fx-background-color: #2196F3;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 10 20;
+    -fx-background-radius: 5;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 2);
+}
+
+.choix-button:hover {
+    -fx-background-color: #1976D2;
+}
+
+.choix-button:pressed {
+    -fx-background-color: #64B5F6;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 5, 0, 0, 2);
+}
+
+.choix-button:disabled {
+    -fx-opacity: 0.5;
 }

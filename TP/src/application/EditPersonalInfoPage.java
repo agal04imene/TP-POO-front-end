@@ -1,5 +1,10 @@
 package application;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.util.HashSet;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -13,9 +18,12 @@ import javafx.stage.Stage;
 
 public class EditPersonalInfoPage {
     private Stage primaryStage;
+    private Orthophoniste orthophoniste;
+    private HashSet<Orthophoniste> comptesUtilisateurs;
 
-    public EditPersonalInfoPage(Stage primaryStage) {
+    public EditPersonalInfoPage(Stage primaryStage, Orthophoniste orthophoniste) {
         this.primaryStage = primaryStage;
+        this.orthophoniste = orthophoniste;
     }
 
     public void load(Scene scene) {
@@ -35,22 +43,22 @@ public class EditPersonalInfoPage {
         editPersonalInfoContainer.getStyleClass().add("change-container");
 
         // Name Field
-        TextField nameField = new TextField();
+        TextField nameField = new TextField(orthophoniste.getNom());
         nameField.getStyleClass().add("text-field");
         nameField.setPromptText("Nom");
 
         // Surname Field
-        TextField surnameField = new TextField();
+        TextField surnameField = new TextField(orthophoniste.getPrenom());
         surnameField.getStyleClass().add("text-field");
         surnameField.setPromptText("Prénom");
 
         // Phone Number Field
-        TextField phoneNumberField = new TextField();
+        TextField phoneNumberField = new TextField(orthophoniste.getNumTelephone());
         phoneNumberField.getStyleClass().add("text-field");
         phoneNumberField.setPromptText("Numéro de téléphone");
 
         // Address Field
-        TextField addressField = new TextField();
+        TextField addressField = new TextField(orthophoniste.getAddress());
         addressField.getStyleClass().add("text-field");
         addressField.setPromptText("Adresse");
 
@@ -68,7 +76,29 @@ public class EditPersonalInfoPage {
         cancelButton.getStyleClass().add("change-button");
 
         cancelButton.setOnAction(e -> {
-            AccountSettingsPage accountSettingsPage = new AccountSettingsPage(primaryStage);
+            AccountSettingsPage accountSettingsPage = new AccountSettingsPage(primaryStage, orthophoniste);
+            accountSettingsPage.load(scene);
+        });
+        
+        confirmButton.setOnAction(e -> {
+        	
+        	comptesUtilisateurs=loadComptesOrthophonisteFromFile();
+        	
+        	// supprimer l'ancien code de l'orthophoniste
+        	comptesUtilisateurs.remove(orthophoniste);
+        	
+        	//changer les informations 
+            orthophoniste.setNom(nameField.getText());
+            orthophoniste.setPrenom(surnameField.getText());
+            orthophoniste.setNumTelephone(phoneNumberField.getText());
+            orthophoniste.setAdresse(addressField.getText());
+            
+           // sauvegarder le compte de l'orthophoniste avec les nouvelles informations 
+            comptesUtilisateurs.add(orthophoniste);
+            
+            
+
+            AccountSettingsPage accountSettingsPage = new AccountSettingsPage(primaryStage, orthophoniste);
             accountSettingsPage.load(scene);
         });
 
@@ -85,5 +115,15 @@ public class EditPersonalInfoPage {
         primaryStage.setScene(editPersonalInfoScene);
 
         primaryStage.centerOnScreen();
+    }
+    public HashSet<Orthophoniste> loadComptesOrthophonisteFromFile() {
+        HashSet<Orthophoniste> comptesUtilisateurs = null;
+        try (FileInputStream fileIn = new FileInputStream("comptesOrthophoniste.ser");
+             ObjectInputStream in = new ObjectInputStream(fileIn)) {
+            comptesUtilisateurs = (HashSet<Orthophoniste>) in.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return comptesUtilisateurs;
     }
 }

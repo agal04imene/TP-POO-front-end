@@ -167,6 +167,7 @@
     -fx-spacing: 10px;
 }
 
+
 .delete-title {
     -fx-font-size: 24px;
     -fx-font-weight: bold;
@@ -198,26 +199,35 @@
     -fx-padding: 0 10px; /* Add padding to create space between bars */
 }
 
+/* ---------------------------------------------------- */
 
-.choix-button {
-    -fx-background-color: #2196F3;
-    -fx-text-fill: #FFFFFF;
+.custom-scroll-pane {
+    -fx-background-color: #f0f0f0;
+    -fx-padding: 10;
+}
+
+.custom-grid-pane {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #dcdcdc;
+    -fx-border-width: 1;
+    -fx-padding: 10;
+}
+
+.custom-text-field {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #dcdcdc;
+    -fx-border-width: 1;
+    -fx-padding: 5;
     -fx-font-size: 14px;
-    -fx-font-weight: bold;
+}
+
+.custom-button {
+    -fx-background-color: #0078d7;
+    -fx-text-fill: #ffffff;
     -fx-padding: 10 20;
-    -fx-background-radius: 5;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 2);
+    -fx-font-size: 14px;
 }
 
-.choix-button:hover {
-    -fx-background-color: #1976D2;
-}
-
-.choix-button:pressed {
-    -fx-background-color: #64B5F6;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 5, 0, 0, 2);
-}
-
-.choix-button:disabled {
-    -fx-opacity: 0.5;
+.custom-check-box {
+    -fx-padding: 5;
 }

@@ -5,7 +5,7 @@ import java.util.Iterator;
 
 public class QCU extends Question{
 	
-	private String reponseJuste;
+	private String reponseJuste;  // une seule réponse juste
 	private ArrayList<String> reponsesFausses;
 	private String reponse;
 	
@@ -31,10 +31,10 @@ public class QCU extends Question{
 		super(enonce);
 		reponsesFausses=new ArrayList<String>();
 		
-		// TODO Auto-generated constructor stub
 	}
+	
 	public float evaluer() {
-		if(reponse==reponseJuste)return 1;
+		if(reponse==reponseJuste) return 1;
 		return 0;
 	}
 	public void ajoutRepFausse(String reponse) {

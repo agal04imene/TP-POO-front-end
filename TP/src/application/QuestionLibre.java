@@ -8,6 +8,7 @@ public class QuestionLibre extends Question {
     public QuestionLibre (String enonce) {
         super(enonce) ; 
     }
+
     
     //LES AFFICHAGES 
     public void afficherReponse (){
@@ -16,11 +17,11 @@ public class QuestionLibre extends Question {
 
     //getters and setters 
     public void setReponse (String reponse){
-        this.reponse = reponse ; 
+         this.reponse = reponse ; 
     }
 
     public String getReponse (){
-    	return reponse ; 
+         return reponse ; 
     }
 
    

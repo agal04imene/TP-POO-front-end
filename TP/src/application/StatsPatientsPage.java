@@ -10,6 +10,11 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class StatsPatientsPage extends Application {
+	
+	Orthophoniste orthophoniste;
+	public StatsPatientsPage (Orthophoniste orthophoniste) {
+		this.orthophoniste=orthophoniste;
+	}
 
 	@Override
     public void start(Stage primaryStage) {
@@ -17,13 +22,13 @@ public class StatsPatientsPage extends Application {
 
         Button AfficherPourcentages = createMenuButton("Pourcentage de patients par catégorie de troubles");
         AfficherPourcentages.setOnAction(e -> {
-        	PourcentageParCategorie statsPage = new PourcentageParCategorie();
+        	PourcentageParCategorie statsPage = new PourcentageParCategorie(orthophoniste);
             statsPage.start(new Stage());
         });
         
         Button AfficherPatients = createMenuButton("Liste des patients souffrant d'un trouble spécifique");
         AfficherPatients.setOnAction(e -> {
-        	PatientsParTrouble statsPage = new PatientsParTrouble();
+        	PatientsParTrouble statsPage = new PatientsParTrouble(orthophoniste);
             statsPage.start(new Stage());
         });
         

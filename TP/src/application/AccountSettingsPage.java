@@ -12,9 +12,11 @@ import javafx.stage.Stage;
 
 public class AccountSettingsPage {
     private Stage primaryStage;
+    private Orthophoniste orthophoniste;
 
-    public AccountSettingsPage(Stage primaryStage) {
+    public AccountSettingsPage(Stage primaryStage, Orthophoniste orthophoniste) {
         this.primaryStage = primaryStage;
+        this.orthophoniste = orthophoniste;
     }
 
     public void load(Scene scene) {
@@ -36,7 +38,7 @@ public class AccountSettingsPage {
         Button changePasswordButton = createMenuButton("Changer le mot de passe");
         changePasswordButton.setOnAction(e -> {
             // Naviguer vers la Page de Changement de Mot de Passe
-            ChangePasswordPage changePasswordPage = new ChangePasswordPage(primaryStage);
+            ChangePasswordPage changePasswordPage = new ChangePasswordPage(primaryStage,orthophoniste);
             changePasswordPage.load(scene);
         });
 
@@ -44,7 +46,7 @@ public class AccountSettingsPage {
         Button changeEmailButton = createMenuButton("Changer l'adresse e-mail");
         changeEmailButton.setOnAction(e -> {
             // Naviguer vers la Page de Changement d'Adresse E-mail
-            ChangeEmailPage changeEmailPage = new ChangeEmailPage(primaryStage);
+            ChangeEmailPage changeEmailPage = new ChangeEmailPage(primaryStage,orthophoniste);
             changeEmailPage.load(scene);
         });
 
@@ -52,15 +54,15 @@ public class AccountSettingsPage {
         Button editPersonalInfoButton = createMenuButton("Modifier les informations personnelles");
         editPersonalInfoButton.setOnAction(e -> {
             // Naviguer vers la Page de Modification des Informations Personnelles
-            EditPersonalInfoPage editPersonalInfoPage = new EditPersonalInfoPage(primaryStage);
+            EditPersonalInfoPage editPersonalInfoPage = new EditPersonalInfoPage(primaryStage, orthophoniste);
             editPersonalInfoPage.load(scene);
         });
         
         // Option : Supprimer le compte
         Button deleteAccountButton = createMenuButton("Supprimer le compte");
         deleteAccountButton.setOnAction(e -> {
-        	DeleteAccountPage deleteAccountPage = new DeleteAccountPage(primaryStage);
-        	deleteAccountPage.load(scene);
+            DeleteAccountPage deleteAccountPage = new DeleteAccountPage(primaryStage,orthophoniste);
+            deleteAccountPage.load(scene);
         });
 
         menuOptions.getChildren().addAll(
@@ -74,8 +76,9 @@ public class AccountSettingsPage {
 
         // Bouton Retour
         Button backButton = new Button("Retour");
+        backButton.getStyleClass().add("button-style");
         backButton.setOnAction(e -> {
-            MenuPrincipal menuPage = new MenuPrincipal(primaryStage);
+            MenuPrincipal menuPage = new MenuPrincipal(primaryStage, orthophoniste);
             menuPage.load(scene);
         });
         root.setBottom(backButton);
@@ -89,8 +92,11 @@ public class AccountSettingsPage {
 
     private Button createMenuButton(String text) {
         Button button = new Button(text);
+        button.getStyleClass().add("menu-button");
         button.setPrefWidth(500);
         button.setPrefHeight(60);
         return button;
     }
+    
+    
 }

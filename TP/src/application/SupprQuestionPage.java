@@ -1,6 +1,5 @@
 package application;
 
-import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -14,40 +13,23 @@ import javafx.stage.Stage;
 
 import java.util.ArrayList;
 
-public class SupprQuestionPage extends Application {
+public class SupprQuestionPage {
+    private Patient patient;
+    private Stage primaryStage;
+    private ArrayList<Question> questions; // This array is filled with the questions from all "les questionnaires" of a patient
 
-    private ArrayList<Question> questions; // this array is filled with the questions from all "les questionnaires" of a patient
+    public SupprQuestionPage(Stage primaryStage, Patient patient) {
+        this.primaryStage = primaryStage;
+        this.patient = patient;
+        this.questions = new ArrayList<>();
 
-    @Override
-    public void start(Stage primaryStage) {
+     
+    }
+
+ 
+
+    public void load() {
         primaryStage.setTitle("Suppression de Question");
-        
-        // ---------------------------------------------------------------------------------------------------------------------------- //
-        // !!!! THIS IS JUST A STUPID LITTLE EXAMPLE FOR TESTING PURPOSES !!!!
-        questions = new ArrayList<>();
-
-        // Adding a QCM question
-        QCM qcm = new QCM("Quelle est la capitale de la France ?");
-        qcm.ajoutRepJuste("Paris");
-        qcm.ajoutRepFausse("Lyon");
-        qcm.ajoutRepFausse("Marseille");
-        qcm.ajoutRepFausse("Nice");
-        questions.add(qcm);
-
-        // Adding a QCU question
-        QCU qcu = new QCU("Quelle est la couleur du ciel par temps clair ?");
-        qcu.ajoutRepJuste("Bleu");
-        qcu.ajoutRepFausse("Rouge");
-        qcu.ajoutRepFausse("Vert");
-        qcu.ajoutRepFausse("Jaune");
-        questions.add(qcu);
-
-        // Adding a QuestionLibre question
-        QuestionLibre libre = new QuestionLibre("Décrivez la Révolution française en quelques phrases.");
-        libre.setReponse("La Révolution française est une période de grands changements sociaux et politiques en France de 1789 à 1799.");
-        questions.add(libre);
-        
-        // ---------------------------------------------------------------------------------------------------------------------------- //
 
         // Title
         Label title = new Label("Quel type de question souhaitez-vous supprimer ?");
@@ -70,14 +52,14 @@ public class SupprQuestionPage extends Application {
         root.getChildren().addAll(title, buttonBox);
 
         // Handlers for buttons
-        qcmButton.setOnAction(e -> primaryStage.setScene(createQuestionTypeScene(primaryStage, "QCM")));
-        qcuButton.setOnAction(e -> primaryStage.setScene(createQuestionTypeScene(primaryStage, "QCU")));
-        libreButton.setOnAction(e -> primaryStage.setScene(createQuestionTypeScene(primaryStage, "Question Libre")));
+        qcmButton.setOnAction(e -> primaryStage.setScene(createQuestionTypeScene("QCM")));
+        qcuButton.setOnAction(e -> primaryStage.setScene(createQuestionTypeScene("QCU")));
+        libreButton.setOnAction(e -> primaryStage.setScene(createQuestionTypeScene("Question Libre")));
 
         // Scene setup
         Scene scene = new Scene(root, 500, 200);
-        primaryStage.setScene(scene);
         scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+        primaryStage.setScene(scene);
         primaryStage.show();
         primaryStage.centerOnScreen();
     }
@@ -89,7 +71,7 @@ public class SupprQuestionPage extends Application {
         return button;
     }
 
-    private Scene createQuestionTypeScene(Stage primaryStage, String questionType) {
+    private Scene createQuestionTypeScene(String questionType) {
         Label title = new Label("Choisissez une méthode de suppression pour " + questionType + " :");
         title.setStyle("-fx-font-size: 16px; -fx-font-family: 'Ubuntu';");
 
@@ -101,29 +83,51 @@ public class SupprQuestionPage extends Application {
         root.setPadding(new Insets(20));
         root.getChildren().addAll(title, showAllButton, enterEnonceButton);
 
-        showAllButton.setOnAction(e -> primaryStage.setScene(createShowAllQuestionsScene(primaryStage, questionType)));
-        enterEnonceButton.setOnAction(e -> primaryStage.setScene(createEnterEnonceScene(primaryStage, questionType)));
+        showAllButton.setOnAction(e -> primaryStage.setScene(createShowAllQuestionsScene(questionType)));
+        enterEnonceButton.setOnAction(e -> primaryStage.setScene(createEnterEnonceScene(questionType)));
 
         Scene scene = new Scene(root, 500, 200);
         scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
         return scene;
     }
 
-    private Scene createShowAllQuestionsScene(Stage primaryStage, String questionType) {
+    private Scene createShowAllQuestionsScene(String questionType) {
         Label title = new Label("Sélectionnez la question à supprimer :");
+        
+    	
         title.setStyle("-fx-font-size: 16px; -fx-font-family: 'Ubuntu';");
 
         VBox questionsBox = new VBox(10);
         questionsBox.setAlignment(Pos.CENTER_LEFT);
         questionsBox.setPadding(new Insets(10));
-
+        EpreuveClinique[] listeEpreuves = patient.getDossierPatient().getListeBOs().get( 0).getListeEpreuves();
+    	EpreuveClinique epreuveClinique = listeEpreuves[0];  // la derniere epreue clinique
+    	
+    	if (questionType.equalsIgnoreCase("qcm")){
+    		Questionnaire  questionnaire ;
+    		ArrayList<QCM> questions;
+    		questionnaire = (Questionnaire)epreuveClinique.getListeTests().get(0);
+    		questions = questionnaire.getListeQcm();
+    	} else if  (questionType.equalsIgnoreCase("qcm")) {
+    		Questionnaire  questionnaire ;
+    		ArrayList<QCM> questions;
+    		questionnaire = (Questionnaire)epreuveClinique.getListeTests().get(0);
+    		questions = questionnaire.getListeQcm();
+    	}else {
+    		Questionnaire  questionnaire ;
+    		ArrayList<QuestionLibre> questions;
+    		questionnaire = (Questionnaire)epreuveClinique.getListeTests().get(0);
+    		questions = questionnaire.getListeQstLibre();
+    	}
+    	
         for (Question question : questions) {
             if (isQuestionType(question, questionType)) {
                 Button questionButton = new Button(question.getEnonce());
                 questionButton.getStyleClass().add("choix-button");
                 questionButton.setOnAction(e -> {
-                    questions.remove(question);
-                    primaryStage.setScene(createConfirmationScene(primaryStage, "Question supprimée."));
+                    boolean supp =questions.remove(question);
+                    
+                    if (supp) primaryStage.setScene(createConfirmationScene("Question supprimée."));
                 });
                 questionsBox.getChildren().add(questionButton);
             }
@@ -142,7 +146,7 @@ public class SupprQuestionPage extends Application {
         return scene;
     }
 
-    private Scene createEnterEnonceScene(Stage primaryStage, String questionType) {
+    private Scene createEnterEnonceScene(String questionType) {
         Label title = new Label("Entrez l'énoncé de la question à supprimer :");
         title.setStyle("-fx-font-size: 16px; -fx-font-family: 'Ubuntu';");
 
@@ -155,16 +159,21 @@ public class SupprQuestionPage extends Application {
 
         deleteButton.setOnAction(e -> {
             String enonce = enonceField.getText();
+            boolean questionFound = false;
             for (Question question : questions) {
                 if (isQuestionType(question, questionType) && question.getEnonce().equals(enonce)) {
                     questions.remove(question);
-                    primaryStage.setScene(createConfirmationScene(primaryStage, "Question supprimée."));
+                    primaryStage.setScene(createConfirmationScene("Question supprimée."));
+                    questionFound = true;
                     break;
                 }
             }
+            if (!questionFound) {
+                primaryStage.setScene(createConfirmationScene("Question non trouvée."));
+            }
         });
-        
-        annulerButton.setOnAction(event -> primaryStage.close());
+
+        annulerButton.setOnAction(e -> primaryStage.setScene(new Scene(new VBox(new Label("Action annulée")), 400, 300)));
 
         VBox root = new VBox(20);
         root.setAlignment(Pos.CENTER);
@@ -176,12 +185,12 @@ public class SupprQuestionPage extends Application {
         return scene;
     }
 
-    private Scene createConfirmationScene(Stage primaryStage, String message) {
+    private Scene createConfirmationScene(String message) {
         Label confirmationLabel = new Label(message);
         confirmationLabel.setStyle("-fx-font-size: 16px; -fx-font-family: 'Ubuntu';");
 
         Button backButton = new Button("Retour");
-        backButton.setOnAction(e -> start(primaryStage));
+        backButton.setOnAction(e -> load());
 
         VBox root = new VBox(20);
         root.setAlignment(Pos.CENTER);
@@ -205,5 +214,4 @@ public class SupprQuestionPage extends Application {
                 return false;
         }
     }
-
 }

@@ -98,15 +98,11 @@ public class QCM extends Question {
 			}
 		return false;
 	}
-	
-	
 	public void repondre(String reponse) {
 		
 			this.reponses.add(reponse);
 
 	}
-	
-	
 	public void afficheReponses()
 	{
 		Iterator<String> it= reponsesJustes.iterator();

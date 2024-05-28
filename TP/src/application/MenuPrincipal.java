@@ -1,6 +1,5 @@
 package application;
 
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -14,15 +13,17 @@ import javafx.stage.Stage;
 
 public class MenuPrincipal {
     private Stage primaryStage;
+    private Orthophoniste orthophoniste;
 
-    public MenuPrincipal(Stage primaryStage) {
+    public MenuPrincipal(Stage primaryStage, Orthophoniste orthophoniste) {
         this.primaryStage = primaryStage;
+        this.orthophoniste = orthophoniste;
     }
 
     public void load(Scene scene) {
         BorderPane root = new BorderPane();
         root.setPadding(new Insets(20));
-        
+
         // Title
         Text title = new Text("Menu");
         title.setFont(Font.font("Ubuntu", 38));
@@ -35,90 +36,68 @@ public class MenuPrincipal {
         menuOptions.setAlignment(Pos.CENTER);
         menuOptions.setPadding(new Insets(20));
 
-        // Option : Paramètres du Compte
+        // Option: Paramètres du Compte
         Button accountSettingsButton = createMenuButton("Paramètres du Compte");
         accountSettingsButton.setOnAction(e -> {
-            // Naviguer vers la Page des Paramètres du Compte
-            AccountSettingsPage accountSettingsPage = new AccountSettingsPage(primaryStage);
+            // Navigate to Account Settings Page
+            AccountSettingsPage accountSettingsPage = new AccountSettingsPage(primaryStage, orthophoniste);
             accountSettingsPage.load(scene);
         });
 
-        // Option : Consulter le Dossier d'un Patient
-        Button viewPatientRecordsButton = createMenuButton("Consulter le Dossier d'un Patient");
-        viewPatientRecordsButton.setOnAction(e -> {
-            // Naviguer vers la Page de Consultation du Dossier d'un Patient
-            ViewPatientRecordsPage viewPatientRecordsPage = new ViewPatientRecordsPage(primaryStage);
-            viewPatientRecordsPage.load(scene);
+        // Option: Gestions des dossiers des patients
+        Button managePatientRecordsButton = createMenuButton("Gestions des dossiers des patients");
+        managePatientRecordsButton.setOnAction(e -> {
+            // Navigate to Manage Patient Records Page
+            GestionDossiersPatients gestionDossiersPatients = new GestionDossiersPatients(primaryStage, orthophoniste);
+            gestionDossiersPatients.load(scene);
         });
 
-        // Option : Ajouter un Patient
-        Button addPatientButton = createMenuButton("Créer un dossier pour un nouveau Patient");
-        addPatientButton.setOnAction(e -> {
-            // Naviguer vers la Page d'Ajout d'un Patient
-            AddPatientPage addPatientPage = new AddPatientPage(primaryStage);
-            addPatientPage.load(scene);
-        });
-
-        // Option : Supprimer un Patient
-        Button removePatientButton = createMenuButton("Supprimer le dossier d'un Patient");
-        removePatientButton.setOnAction(e -> {
-            // Naviguer vers la Page de Suppression d'un Patient
-            RemovePatientPage removePatientPage = new RemovePatientPage(primaryStage);
-            removePatientPage.load(scene);
-        });
-
-        // Option : Gestion des Tests et Anamnèses
+        // Option: Gestion des Tests et Anamnèses
         Button manageTestsButton = createMenuButton("Gestion des Tests et Anamnèses");
         manageTestsButton.setOnAction(e -> {
-            // Naviguer vers la Page de Gestion des Tests et Anamnèses
-        	ManageTestsPage manageTestsPage = new ManageTestsPage();
-            Stage stage = new Stage();
-            manageTestsPage.start(stage);
+            // Navigate to Manage Tests Page
+            PatientsListManageTests manageTestsPage = new PatientsListManageTests(primaryStage, orthophoniste);
+            manageTestsPage.load(scene);
         });
-        
+
         // Option : Statistiques sur les Patients
-        Button StatsPatientsButton = createMenuButton("Statistiques sur les Patients");
-        StatsPatientsButton.setOnAction(e -> {
-            // Naviguer vers la Page de Gestion des Tests et Anamnèses
-            //ManageTestsPage manageTestsPage = new ManageTestsPage(primaryStage);
-            //manageTestsPage.load(scene);
-            
-            StatsPatientsPage statsPage = new StatsPatientsPage();
+        Button statsPatientsButton = createMenuButton("Statistiques sur les Patients");
+        statsPatientsButton.setOnAction(e -> {
+            // Navigate to Stats Patients Page
+            StatsPatientsPage statsPage = new StatsPatientsPage(orthophoniste);
             statsPage.start(new Stage());
         });
-        
-        // Option : Se déconnecter de l'application
+
+        // Option: Gestion des rendez-vous
+        Button gestionRendezVousButton = createMenuButton("Gestion des rendez-vous");
+        gestionRendezVousButton.setOnAction(e -> {
+            // Navigate to GestionRendezVous Page
+            GestionRendezVous gestionRendezVous = new GestionRendezVous(primaryStage, orthophoniste);
+            gestionRendezVous.load(scene);
+        });
+
+        // Option: Se déconnecter de l'application
         Button logOutButton = createMenuButton("Se déconnecter de l'application");
         logOutButton.setOnAction(e -> {
-        	Platform.exit(); // Close the JavaFX application
+            // Navigate to Log Out Page
+            // LogOutPage logOutPage = new LogOutPage(primaryStage);
+            // logOutPage.load(scene);
         });
 
         menuOptions.getChildren().addAll(
                 accountSettingsButton,
-                viewPatientRecordsButton,
-                addPatientButton,
-                removePatientButton,
+                managePatientRecordsButton,
                 manageTestsButton,
-                StatsPatientsButton,
+                statsPatientsButton,
+                gestionRendezVousButton,
                 logOutButton
         );
 
         root.setCenter(menuOptions);
 
-        // Bouton Retour
-        Button backButton = new Button("Retour");
-        backButton.getStyleClass().add("button-style");
-        backButton.setOnAction(e -> {
-        	HomePage homePage = new HomePage(primaryStage);
-            homePage.load(scene);
-        });
-        root.setBottom(backButton);
-
-        Scene menuScene = new Scene(root, 800, 650);
+        Scene menuScene = new Scene(root, 800, 700);
         menuScene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
         primaryStage.setScene(menuScene);
-        
-        primaryStage.centerOnScreen();
     }
 
     private Button createMenuButton(String text) {

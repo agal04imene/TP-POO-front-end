@@ -1,8 +1,7 @@
 package application;
 
+import java.io.File;
 import java.io.FileInputStream;
-
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -22,7 +21,7 @@ import javafx.stage.Stage;
 
 public class HomePage {
     private Stage primaryStage;
-
+    
     public HomePage(Stage primaryStage) {
         this.primaryStage = primaryStage;
     }
@@ -41,7 +40,7 @@ public class HomePage {
             FileInputStream imagePath = new FileInputStream("logo.png");
             Image image = new Image(imagePath);
             ImageView imageView = new ImageView(image);
-            imageView.setFitHeight(440);
+            imageView.setFitHeight(420);
             imageView.setFitWidth(400);
 
             Text centerText = new Text("OrthoNet : La gestion optimisée pour votre cabinet d'orthophonie!");
@@ -67,11 +66,8 @@ public class HomePage {
             signInButton.getStyleClass().add("button-style");
             Button signUpButton = new Button("Sign Up");
             signUpButton.getStyleClass().add("button-style");
-            Button logOutButton = new Button("Log Out");
-            logOutButton.getStyleClass().add("button-style");
-            
 
-            HBox buttonsHBox = new HBox(20, signInButton, signUpButton,logOutButton);
+            HBox buttonsHBox = new HBox(20, signInButton, signUpButton);
             buttonsHBox.setId("buttonsBox");
             buttonsHBox.setAlignment(Pos.CENTER);
             buttonsHBox.setPadding(new Insets(20));
@@ -79,8 +75,8 @@ public class HomePage {
             signInButton.setOnAction(new EventHandler<ActionEvent>() {
                 public void handle(ActionEvent arg0) {
                     // Navigate to Sign In Page
-                	SignInPage signInPage = new SignInPage(primaryStage);
-                	signInPage.load(scene);
+                    SignInPage signInPage = new SignInPage(primaryStage);
+                    signInPage.load(scene);
                 }
             });
 
@@ -90,10 +86,6 @@ public class HomePage {
                     SignUpPage signUpPage = new SignUpPage(primaryStage);
                     signUpPage.load(scene);
                 }
-            });
-            
-            logOutButton.setOnAction(e -> {
-            	Platform.exit(); // Close the JavaFX application
             });
 
             centerVBox.getChildren().addAll(centerText, imageView, buttonsHBox);

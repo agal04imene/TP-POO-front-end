@@ -1,6 +1,5 @@
 package application;
 
-import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -10,17 +9,34 @@ import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-public class AjoutQuestionPage extends Application {
+import java.util.ArrayList;
+import java.util.List;
 
-    @Override
-    public void start(Stage primaryStage) {
+public class AjoutQuestionPage {
+    private Stage primaryStage;
+    private Patient patient;
+    private QCM qcm =new QCM(null);
+    private QCU qcu =new QCU(null);
+    private QuestionLibre qstLibre= new QuestionLibre(null);
+    private String proposition=null;
+
+
+    public AjoutQuestionPage(Stage primaryStage) {
+        this.primaryStage = primaryStage;
+    }
+
+    public AjoutQuestionPage(Stage primaryStage, Patient patient) {
+        this.primaryStage = primaryStage;
+        this.patient = patient;
+    }
+
+    public void load(Scene scene) {
         primaryStage.setTitle("Ajout de Question");
 
         // Title
@@ -42,7 +58,7 @@ public class AjoutQuestionPage extends Application {
         root.setAlignment(Pos.CENTER);
         root.setPadding(new Insets(20));
         root.getChildren().addAll(title, buttonBox);
-        
+
         // Handlers for buttons
         qcmButton.setOnAction(e -> {
             primaryStage.setScene(createQCMScene(primaryStage));
@@ -56,28 +72,31 @@ public class AjoutQuestionPage extends Application {
             primaryStage.setScene(createLibreScene(primaryStage));
             primaryStage.setTitle("Ajouter une question libre");
         });
-        
 
         // Scene setup
-        Scene scene = new Scene(root, 500, 200);
+        scene = new Scene(root, 500, 200);
         primaryStage.setScene(scene);
         scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
         primaryStage.show();
         primaryStage.centerOnScreen();
     }
-    
+
     private Button createMenuButton(String text) {
         Button button = new Button(text);
         button.setPrefWidth(150);
         button.setPrefHeight(60);
         return button;
     }
-    
+
     private Scene createQCMScene(Stage primaryStage) {
         // Create scene for adding QCM question
         Label questionLabel = new Label("Énoncé de la question :");
         questionLabel.getStyleClass().add("label-style");
+
         TextField questionField = new TextField();
+        String QstEnonce = questionField.getText();
+        qcm.enonce = QstEnonce;
+
         Label nbPropositionsLabel = new Label("Nombre de propositions :");
         nbPropositionsLabel.getStyleClass().add("label-style");
         TextField nbPropositionsField = new TextField();
@@ -85,18 +104,31 @@ public class AjoutQuestionPage extends Application {
         VBox propositionsBox = new VBox(10);
         propositionsBox.setAlignment(Pos.CENTER_LEFT);
 
+        List<CheckBox> reponseJusteCheckBoxes = new ArrayList<>();
+        List<CheckBox> reponseChoisieCheckBoxes = new ArrayList<>();
+
         nbPropositionsField.setOnAction(event -> {
             propositionsBox.getChildren().clear();
+            reponseJusteCheckBoxes.clear();
+            reponseChoisieCheckBoxes.clear();
             int nbPropositions = Integer.parseInt(nbPropositionsField.getText());
             for (int i = 1; i <= nbPropositions; i++) {
                 TextField propositionField = new TextField();
-                CheckBox justeBox = new CheckBox("Réponse juste");
-                CheckBox choisieBox = new CheckBox("Réponse choisie");
+                 proposition = propositionField.getText();
+
                 Label label = new Label("Proposition " + i + ":");
                 label.getStyleClass().add("label-style");
-                propositionsBox.getChildren().add(label);
-                propositionsBox.getChildren().add(propositionField);
-                propositionsBox.getChildren().addAll(justeBox, choisieBox);
+
+                CheckBox reponseJusteCheckBox = new CheckBox("Réponse juste");
+                CheckBox reponseChoisieCheckBox = new CheckBox("Réponse choisie");
+
+                if (reponseJusteCheckBox.isSelected()) {
+                    qcm.ajoutRepJuste(proposition);
+                } else if (reponseChoisieCheckBox.isSelected()) {
+                    qcm.ajoutRepFausse(proposition);
+                }
+
+                propositionsBox.getChildren().addAll(label, propositionField, reponseJusteCheckBox, reponseChoisieCheckBox);
             }
         });
 
@@ -105,8 +137,17 @@ public class AjoutQuestionPage extends Application {
         HBox buttonsBox = new HBox(20);
         buttonsBox.getChildren().addAll(addButton, cancelButton);
         buttonsBox.setAlignment(Pos.CENTER);
-        
-        addButton.setOnAction(event -> primaryStage.setScene(new Scene(new VBox(new Label("Question QCM ajoutée")), 400, 300)));
+
+        addButton.setOnAction(event -> {
+        	
+           EpreuveClinique[] listeEpreuves = patient.getDossierPatient().getListeBOs().get(0).getListeEpreuves();  // la liste des epreuves du 1er BO
+           EpreuveClinique epreuveClinique = listeEpreuves[0];  // la derniere epreue clinique
+       	Questionnaire questionnaire = (Questionnaire) epreuveClinique.getListeTests().get(0);
+       	
+       	 questionnaire.ajouterQcm(qcm);
+          
+           primaryStage.setScene(new Scene(new VBox(new Label("Question QCM ajoutée")), 400, 300));
+        });
         cancelButton.setOnAction(event -> primaryStage.close());
 
         VBox qcmLayout = new VBox(10);
@@ -116,12 +157,12 @@ public class AjoutQuestionPage extends Application {
 
         ScrollPane scrollPane = new ScrollPane(qcmLayout);
         scrollPane.setFitToWidth(true);
-        
+
         Scene scene = new Scene(scrollPane, 500, 400);
         scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
         primaryStage.centerOnScreen();
-        
-        return scene ;
+
+        return scene;
     }
 
     private Scene createQCUScene(Stage primaryStage) {
@@ -129,53 +170,72 @@ public class AjoutQuestionPage extends Application {
         Label questionLabel = new Label("Énoncé de la question :");
         questionLabel.getStyleClass().add("label-style");
         TextField questionField = new TextField();
+        qcu.enonce = questionField.getText();
+
         Label nbPropositionsLabel = new Label("Nombre de propositions :");
         nbPropositionsLabel.getStyleClass().add("label-style");
         TextField nbPropositionsField = new TextField();
 
         VBox propositionsBox = new VBox(10);
         propositionsBox.setAlignment(Pos.CENTER_LEFT);
-        
-        ToggleGroup toggleGroup = new ToggleGroup();
+
+        List<CheckBox> reponseJusteCheckBoxes = new ArrayList<>();
+        List<RadioButton> reponseChoisieRadioButtons = new ArrayList<>();
 
         nbPropositionsField.setOnAction(event -> {
             propositionsBox.getChildren().clear();
+            reponseJusteCheckBoxes.clear();
+            reponseChoisieRadioButtons.clear();
             int nbPropositions = Integer.parseInt(nbPropositionsField.getText());
             for (int i = 1; i <= nbPropositions; i++) {
                 TextField propositionField = new TextField();
-                CheckBox justeBox = new CheckBox("Réponse juste");
-                RadioButton choisieButton = new RadioButton("Réponse choisie");
-                choisieButton.setToggleGroup(toggleGroup);
+                 proposition = propositionField.getText();
+
                 Label label = new Label("Proposition " + i + ":");
                 label.getStyleClass().add("label-style");
-                propositionsBox.getChildren().add(label);
-                propositionsBox.getChildren().add(propositionField);
-                propositionsBox.getChildren().addAll(justeBox, choisieButton);
+
+                CheckBox reponseJusteCheckBox = new CheckBox("Réponse juste");
+                RadioButton reponseChoisieRadioButton = new RadioButton("Réponse choisie");
+
+                if (reponseJusteCheckBox.isSelected()) {
+                    qcu.ajoutRepJuste(proposition);
+                } else if (reponseChoisieRadioButton.isSelected()) {
+                    qcu.ajoutRepFausse(proposition);
+                }
+
+                propositionsBox.getChildren().addAll(label, propositionField, reponseJusteCheckBox, reponseChoisieRadioButton);
             }
         });
 
         Button addButton = new Button("Confirmer");
         Button cancelButton = new Button("Annuler");
-        
         HBox buttonsBox = new HBox(20);
         buttonsBox.getChildren().addAll(addButton, cancelButton);
         buttonsBox.setAlignment(Pos.CENTER);
-        
-        addButton.setOnAction(event -> primaryStage.setScene(new Scene(new VBox(new Label("Question QCU ajoutée")), 400, 300)));
+
+        addButton.setOnAction(event -> {
+        	  EpreuveClinique[] listeEpreuves = patient.getDossierPatient().getListeBOs().get( 0).getListeEpreuves();
+        	EpreuveClinique epreuveClinique = listeEpreuves[0];  // la derniere epreue clinique
+        	Questionnaire questionnaire = (Questionnaire) epreuveClinique.getListeTests().get(0);
+        	
+        	 questionnaire.ajouterQcu(qcu);
+      
+            primaryStage.setScene(new Scene(new VBox(new Label("Question QCU ajoutée")), 400, 300));
+        });
         cancelButton.setOnAction(event -> primaryStage.close());
 
         VBox qcuLayout = new VBox(10);
         qcuLayout.setAlignment(Pos.CENTER);
         qcuLayout.setPadding(new Insets(20));
-        qcuLayout.getChildren().addAll(questionLabel, questionField, nbPropositionsLabel, nbPropositionsField, propositionsBox,buttonsBox);
+        qcuLayout.getChildren().addAll(questionLabel, questionField, nbPropositionsLabel, nbPropositionsField, propositionsBox, buttonsBox);
 
         ScrollPane scrollPane = new ScrollPane(qcuLayout);
         scrollPane.setFitToWidth(true);
-        
+
         Scene scene = new Scene(scrollPane, 500, 400);
         scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
         primaryStage.centerOnScreen();
-        
+
         return scene;
     }
 
@@ -184,33 +244,42 @@ public class AjoutQuestionPage extends Application {
         Label questionLabel = new Label("Énoncé de la question :");
         questionLabel.getStyleClass().add("label-style");
         TextField questionField = new TextField();
+        qstLibre.enonce=questionField.getText() ;
         Label reponseLabel = new Label("Réponse du patient :");
         reponseLabel.getStyleClass().add("label-style");
         TextField reponseField = new TextField();
+        qstLibre.reponse=reponseField.getText();
 
         Button addButton = new Button("Confirmer");
         Button cancelButton = new Button("Annuler");
-        
         HBox buttonsBox = new HBox(20);
         buttonsBox.getChildren().addAll(addButton, cancelButton);
         buttonsBox.setAlignment(Pos.CENTER);
+
+        addButton.setOnAction(event -> {
+        	
+        	  EpreuveClinique[] listeEpreuves = patient.getDossierPatient().getListeBOs().get( 0).getListeEpreuves();
+        	  EpreuveClinique epreuveClinique = listeEpreuves[0];  // la derniere epreue clinique
+          	Questionnaire questionnaire = (Questionnaire) epreuveClinique.getListeTests().get(0);
+          	
+          	 questionnaire.ajouterQstLibre(qstLibre);
+        	primaryStage.setScene(new Scene(new VBox(new Label("Question libre ajoutée")), 400, 300));
+        	});
         
-        addButton.setOnAction(event -> primaryStage.setScene(new Scene(new VBox(new Label("Question libre ajoutée")), 400, 300)));
         cancelButton.setOnAction(event -> primaryStage.close());
-        
+
         VBox libreLayout = new VBox(10);
         libreLayout.setAlignment(Pos.CENTER);
         libreLayout.setPadding(new Insets(20));
         libreLayout.getChildren().addAll(questionLabel, questionField, reponseLabel, reponseField, buttonsBox);
-        
+
         ScrollPane scrollPane = new ScrollPane(libreLayout);
         scrollPane.setFitToWidth(true);
-        
+
         Scene scene = new Scene(scrollPane, 500, 300);
         scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
         primaryStage.centerOnScreen();
-        
+
         return scene;
     }
-
 }

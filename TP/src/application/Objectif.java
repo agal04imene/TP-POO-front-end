@@ -5,10 +5,12 @@ public class Objectif {
 	String nom ;
 	TypeObj type ;
 	int note ;
+	String typeStr;
 	
 	
 	public Objectif(String nom, String type, int note) {
 		this.nom = nom ;
+		this.typeStr=type;
 		this.note = 1 ; //La note est initialisée à 1 lorsque l'objectif est crée
 		switch (type) {
 			case "Court terme" : this.type = TypeObj.CourtTerme ; break ;
@@ -19,15 +21,14 @@ public class Objectif {
 	}
 	
 	
-	// Getter pour récupérer le nom de l'objectif
-		public String getNom() {
-	        return nom;
-	    }
-	
 	// Getter pour récupérer la note de l'objectif
 	public int getNote() {
         return note;
     }
+	
+	public String getNom () {
+		return this.nom;
+	}
 	
 	
 	// Setter pour modifier la note de l'objectif
@@ -40,7 +41,7 @@ public class Objectif {
 	
 	// Méthode pour afficher les détailles de l'objectif
     public String afficherObjectif() {
-        return "Nom : " + nom + ", Type : " + type +", Note : " + note;
+        return "Nom : " + nom + ", Type : " + type;
     }
 	
 }

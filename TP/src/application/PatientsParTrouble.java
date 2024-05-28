@@ -1,5 +1,9 @@
 package application;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -12,7 +16,12 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class PatientsParTrouble extends Application {
+    private HashSet<Patient> listePatients = new HashSet<Patient>();
+    Orthophoniste orthophoniste;
     
+    public PatientsParTrouble(Orthophoniste orthophoniste) {
+    	this.orthophoniste=orthophoniste;
+    }
     @Override
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Statistiques");
@@ -27,11 +36,46 @@ public class PatientsParTrouble extends Application {
         textField.setMaxWidth(400);
         textField.getStyleClass().add("textfield-style");
 
-        Button button = new Button("Afficher");
-        button.getStyleClass().add("button-style");
-
+        
         VBox form = new VBox(10);
         form.setPadding(new Insets(20));
+        
+        Button button = new Button("Afficher");
+        button.getStyleClass().add("button-style");
+        button.setOnAction(e -> {
+            String  troubleNom = textField.getText();
+            
+            listePatients=orthophoniste.getListePatients();
+            
+         // Récupération des pourcentages
+            Iterator<Patient> it_Patients = listePatients.iterator();			
+    		while(it_Patients.hasNext()) {
+    			
+    			Patient p = it_Patients.next();
+    			ArrayList<BO> listeBOs = p.getDossierPatient().getListeBOs(); // La liste des BOs du patient courrant
+    			
+    			Iterator<BO> it_BOs = listeBOs.iterator();
+    			
+    			while (it_BOs.hasNext()) {
+    				BO bo = it_BOs.next();				
+    				ArrayList<Trouble> listeTroubles= bo.getDiagnostic().listeTroubles;
+    				
+    				Iterator<Trouble> it_Troubles = listeTroubles.iterator();
+    				while (it_Troubles.hasNext()) {
+    					Trouble trouble = it_Troubles.next();
+    					if (trouble.nom.equalsIgnoreCase(troubleNom)) {
+    					    // Create a label to display the patient's name
+    					    Label patientNameLabel = new Label(p.getDossierPatient().getNom()+" "+p.getDossierPatient().getPrenom());
+    					    patientNameLabel.getStyleClass().add("patient-name-label");
+			        
+    					    form.getChildren().add(patientNameLabel);
+    					}  					
+    				}  				
+    			}
+    		}   
+    		
+        });
+
         form.setAlignment(Pos.CENTER); // Center the VBox content
         form.getChildren().addAll(label, textField, button);
 

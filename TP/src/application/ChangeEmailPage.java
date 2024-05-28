@@ -1,5 +1,13 @@
 package application;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.HashSet;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -16,9 +24,12 @@ import javafx.stage.Stage;
 
 public class ChangeEmailPage {
     private Stage primaryStage;
+    private Orthophoniste orthophoniste;
+    private HashSet<Orthophoniste> comptesUtilisateurs;
 
-    public ChangeEmailPage(Stage primaryStage) {
+    public ChangeEmailPage(Stage primaryStage,Orthophoniste orthophoniste) {
         this.primaryStage = primaryStage;
+        this.orthophoniste=orthophoniste;
     }
 
     public void load(Scene scene) {
@@ -75,9 +86,23 @@ public class ChangeEmailPage {
             } else if (!newEmail.equals(confirmNewEmail)) {
             	showAlert("Les nouvelles adresses e-mail ne correspondent pas.");
             } else {
-                // add back-end logic here !!
+            	
+                
+                // Recupérer le compte d'orthophoniste
+            	comptesUtilisateurs = loadComptesOrthophonisteFromFile();
+            	
+            	// Changement du l'email du compte 
+            	  for (Orthophoniste orthophoniste : comptesUtilisateurs) {
+                      if (orthophoniste.getAdresseEmail().equals(oldEmail)) {
+                          orthophoniste.setAdressEmail(newEmail);
+                          
+                          // sauvegarder les changement dans un fichier
+                          saveComptesOrthophonisteToFile(comptesUtilisateurs);
+                          break;
+                      }
+                  }
                 showAlert("Changement d'adresse e-mail effectué avec succès.");
-                AccountSettingsPage accountSettingsPage = new AccountSettingsPage(primaryStage);
+                AccountSettingsPage accountSettingsPage = new AccountSettingsPage(primaryStage,orthophoniste);              
                 accountSettingsPage.load(scene);
             }
         });
@@ -88,7 +113,7 @@ public class ChangeEmailPage {
 
         // Add action to cancel button
         cancelButton.setOnAction(e -> {
-            AccountSettingsPage accountSettingsPage = new AccountSettingsPage(primaryStage);
+            AccountSettingsPage accountSettingsPage = new AccountSettingsPage(primaryStage,orthophoniste);
             accountSettingsPage.load(scene);
         });
 
@@ -120,6 +145,28 @@ public class ChangeEmailPage {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+    
+    public HashSet<Orthophoniste> loadComptesOrthophonisteFromFile() {
+        HashSet<Orthophoniste> comptesUtilisateurs = null;
+        try (FileInputStream fileIn = new FileInputStream("comptesOrthophoniste.ser");
+             ObjectInputStream in = new ObjectInputStream(fileIn)) {
+            comptesUtilisateurs = (HashSet<Orthophoniste>) in.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return comptesUtilisateurs;
+    }
+    
+    public void saveComptesOrthophonisteToFile(HashSet<Orthophoniste> comptesUtilisateurs) {
+    	File f = new File ("comptesOrthophoniste.ser");
+        try (FileOutputStream fileOut = new FileOutputStream(f);
+             ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
+            out.writeObject(comptesUtilisateurs);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
     }
 
 

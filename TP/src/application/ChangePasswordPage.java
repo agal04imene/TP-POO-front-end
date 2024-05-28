@@ -1,5 +1,13 @@
 package application;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.HashSet;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -16,9 +24,12 @@ import javafx.stage.Stage;
 
 public class ChangePasswordPage {
     private Stage primaryStage;
-
-    public ChangePasswordPage(Stage primaryStage) {
+    private HashSet<Orthophoniste> comptesUtilisateurs;
+    Orthophoniste orthophoniste;
+    public ChangePasswordPage(Stage primaryStage,Orthophoniste orthophoniste) {
         this.primaryStage = primaryStage;
+        this.orthophoniste=orthophoniste;
+        
     }
 
     public void load(Scene scene) {
@@ -62,21 +73,44 @@ public class ChangePasswordPage {
         confirmButton.getStyleClass().add("change-button");
         
         confirmButton.setOnAction(e -> {
-            String oldPassword = oldPasswordField.getText();
+        	
+        	String oldPassword = oldPasswordField.getText();
             String newPassword = newPasswordField.getText();
             String confirmNewPassword = confirmNewPasswordField.getText();
-
-            if (!isValidPassword(oldPassword)) {
-                showAlert("Veuillez saisir un ancien mot de passe valide.");
-            }
+            
+            // Changement de mot de passe du compte 
+        	comptesUtilisateurs = loadComptesOrthophonisteFromFile();
+        	  for (Orthophoniste orthophoniste : comptesUtilisateurs) {
+                  if (orthophoniste.getMotDePass().equals(oldPassword)) {
+                      orthophoniste.setMotDePass(newPassword);
+                      saveComptesOrthophonisteToFile(comptesUtilisateurs);
+                      break;
+                  }
+              }
+            
+            
             if (!isValidPassword(newPassword)) {
                 showAlert("Le nouveau mot de passe doit contenir au moins 8 caractères, une lettre majuscule, une lettre minuscule, une chiffre et un caractère spécial");
             } else if (!newPassword.equals(confirmNewPassword)) {
                 showAlert("Les nouveaux mots de passe ne correspondent pas.");
             } else {
-                // Include your back-end logic here !!
+            	 
+            	// Recupérer le compte d'orthophoniste
+            	comptesUtilisateurs = loadComptesOrthophonisteFromFile();
+            	
+            	// Changement de mot de passe du compte
+            	  for (Orthophoniste orthophoniste : comptesUtilisateurs) {
+                      if (orthophoniste.getMotDePass().equals(oldPassword)) {
+                          orthophoniste.setMotDePass(newPassword);
+                          
+                 // sauvegarder les changements
+                          saveComptesOrthophonisteToFile(comptesUtilisateurs);
+                          break;
+                      }
+                  }
+                
                 showAlert("Mot de passe changé avec succès !");
-                AccountSettingsPage accountSettingsPage = new AccountSettingsPage(primaryStage);
+                AccountSettingsPage accountSettingsPage = new AccountSettingsPage(primaryStage,orthophoniste);
                 accountSettingsPage.load(scene);
             }
         });
@@ -86,7 +120,7 @@ public class ChangePasswordPage {
         cancelButton.getStyleClass().add("change-button");
         
         cancelButton.setOnAction(e -> {
-        	AccountSettingsPage accountSettingsPage = new AccountSettingsPage(primaryStage);
+        	AccountSettingsPage accountSettingsPage = new AccountSettingsPage(primaryStage,orthophoniste);
         	accountSettingsPage.load(scene);
         });
 
@@ -121,6 +155,28 @@ public class ChangePasswordPage {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+    
+    public HashSet<Orthophoniste> loadComptesOrthophonisteFromFile() {
+        HashSet<Orthophoniste> comptesUtilisateurs = null;
+        try (FileInputStream fileIn = new FileInputStream("comptesOrthophoniste.ser");
+             ObjectInputStream in = new ObjectInputStream(fileIn)) {
+            comptesUtilisateurs = (HashSet<Orthophoniste>) in.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return comptesUtilisateurs;
+    }
+    
+    public void saveComptesOrthophonisteToFile(HashSet<Orthophoniste> comptesUtilisateurs) {
+    	File f = new File ("comptesOrthophoniste.ser");
+        try (FileOutputStream fileOut = new FileOutputStream(f);
+             ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
+            out.writeObject(comptesUtilisateurs);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
     }
 
 

@@ -11,7 +11,7 @@ public class Exercice{
 		this.nomMateriel = nomMateriel;
 	}
 
-	public String getcConsigne() {
+	public String getConsigne() {
 		return (this.consigne);
 	}
 
@@ -44,4 +44,9 @@ public class Exercice{
 			return (false);
 		}
 	}
+
+	public String getEnonce() {
+		return consigne;
+	}
+
 }

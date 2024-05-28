@@ -158,6 +158,10 @@ public class Questionnaire  extends Test {    //extends Test : add it when u pus
     public void setListeQstLibre(ArrayList<QuestionLibre> listeQstLibre) {
         this.listeQstLibre = listeQstLibre;
     }
+
+	public ArrayList<Question> getQuestions() {
+		return listeQuestion;
+	}
 }
 
 

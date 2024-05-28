@@ -46,7 +46,8 @@ public class SignInPage {
             FileInputStream imagePath = new FileInputStream("logo.png");
             Image image = new Image(imagePath);
             logoImageView = new ImageView(image);
-            logoImageView.setFitHeight(300); // Adjust the height as needed
+            logoImageView.setFitHeight(250);
+            logoImageView.setFitWidth(200);
             logoImageView.setPreserveRatio(true);
         } catch (FileNotFoundException e) {
             e.printStackTrace();

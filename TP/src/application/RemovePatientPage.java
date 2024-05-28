@@ -49,7 +49,7 @@ public class RemovePatientPage {
         Button removeButton = new Button("Supprimer Le patient");
         removeButton.getStyleClass().add("button-style");
         
-        // Suppression du patient si'il existe
+        // Suppression du patient s'il existe
         removeButton.setOnAction(e -> {           
             String nom = nomField.getText();
             String prenom = prenomField.getText();

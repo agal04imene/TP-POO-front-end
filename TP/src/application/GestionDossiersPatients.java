@@ -51,7 +51,16 @@ public class GestionDossiersPatients {
             AddPatientPage addPatientPage = new AddPatientPage(primaryStage, orthophoniste);
             addPatientPage.load(scene);
         });
-
+        
+        // Option: Création d'un bilan orthophonique
+        Button newBOButton = createMenuButton("Créer un nouveau bilan orthophonique pour un patient");
+        newBOButton.setOnAction(e -> {
+            // Navigate to patients list (to choose one before creating the BO)
+            PatientsList_CreationBO patientsListPage = new PatientsList_CreationBO(primaryStage, orthophoniste);
+            patientsListPage.load(scene);
+        });
+        
+        
         // Option: Supprimer un Patient
         Button removePatientButton = createMenuButton("Supprimer le dossier d'un Patient");
         removePatientButton.setOnAction(e -> {
@@ -60,9 +69,10 @@ public class GestionDossiersPatients {
             removePatientPage.load(scene);
         });
         
+        
+        
         // Back button
         Button backButton = new Button("Retour");
-        backButton.getStyleClass().add("button-style");
         backButton.setOnAction(e -> {
             MenuPrincipal menuPage = new MenuPrincipal(primaryStage, orthophoniste);
             menuPage.load(scene);
@@ -72,6 +82,7 @@ public class GestionDossiersPatients {
         menuOptions.getChildren().addAll(
                 viewPatientRecordsButton,
                 addPatientButton,
+                newBOButton,
                 removePatientButton
         );
         
@@ -85,7 +96,6 @@ public class GestionDossiersPatients {
 
     private Button createMenuButton(String text) {
         Button button = new Button(text);
-        button.getStyleClass().add("menu-button");
         button.setPrefWidth(500);
         button.setPrefHeight(60);
         return button;

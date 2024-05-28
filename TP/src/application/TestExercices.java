@@ -46,5 +46,10 @@ public class TestExercices extends Test {
 		exercices.remove(p);
 	}
 
+
+	public ArrayList<Exercice> getExercices() {
+		return exercices;
+	}
+
 	
 }

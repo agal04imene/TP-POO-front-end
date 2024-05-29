@@ -1,5 +1,7 @@
 package application;
 
+import java.util.ArrayList;
+
 public class BO {
 
     private Anamnese anamnese;
@@ -25,7 +27,7 @@ public class BO {
         }
         System.out.println();
         
-        // Afficher les épreuves cliniques
+        //Afficher les épreuves cliniques
         /*System.out.println("Epreuves Cliniques :");
         if (listeEpreuves.length > 0) {
             for (EpreuveClinique epreuve : listeEpreuves) {
@@ -33,8 +35,8 @@ public class BO {
             }
         } else {
             System.out.println("Pas d'épreuves cliniques disponibles.");
-        }*/
-        System.out.println();
+        }
+        System.out.println();*/
         
         // Afficher le diagnostic
         System.out.println("Diagnostic :");

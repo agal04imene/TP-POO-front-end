@@ -52,7 +52,7 @@ public class EpreuveClinique {
         }
     }
     
- // Getters and setters for observationClinique
+    // Getters and setters for observationClinique
     public String[] getObservationClinique() {
         return observationClinique;
     }

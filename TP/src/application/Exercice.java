@@ -4,7 +4,7 @@ public class Exercice{
 
 	private String consigne;
 	private String nomMateriel;
-	private float[] score = new float[10];
+	private int[] score ;
 
 	public Exercice(String consigne, String nomMateriel) {
 		this.consigne = consigne;
@@ -30,7 +30,7 @@ public class Exercice{
 
 	public float calculeMoyenne() {
 		float moyenne = 0;
-		for (float m : score) {
+		for (int m : score) {
 
 			moyenne = +m;
 		}
@@ -47,6 +47,10 @@ public class Exercice{
 
 	public String getEnonce() {
 		return consigne;
+	}
+
+	public void setScore(int i, int score) {
+		this.score[i] = score;
 	}
 
 }

@@ -140,7 +140,7 @@ public class AjoutQuestionPage {
 
         addButton.setOnAction(event -> {
         	
-           EpreuveClinique[] listeEpreuves = patient.getDossierPatient().getListeBOs().get(0).getListeEpreuves();  // la liste des epreuves du 1er BO
+        	EpreuveClinique[] listeEpreuves = patient.getDossierPatient().getListeBOs().get(0).getListeEpreuves();  // la liste des epreuves du 1er BO
            EpreuveClinique epreuveClinique = listeEpreuves[0];  // la derniere epreue clinique
        	Questionnaire questionnaire = (Questionnaire) epreuveClinique.getListeTests().get(0);
        	
@@ -214,8 +214,8 @@ public class AjoutQuestionPage {
         buttonsBox.setAlignment(Pos.CENTER);
 
         addButton.setOnAction(event -> {
-        	  EpreuveClinique[] listeEpreuves = patient.getDossierPatient().getListeBOs().get( 0).getListeEpreuves();
-        	EpreuveClinique epreuveClinique = listeEpreuves[0];  // la derniere epreue clinique
+        	EpreuveClinique[] listeEpreuves = patient.getDossierPatient().getListeBOs().get(0).getListeEpreuves();
+        	EpreuveClinique epreuveClinique = listeEpreuves[0];  
         	Questionnaire questionnaire = (Questionnaire) epreuveClinique.getListeTests().get(0);
         	
         	 questionnaire.ajouterQcu(qcu);
@@ -258,8 +258,8 @@ public class AjoutQuestionPage {
 
         addButton.setOnAction(event -> {
         	
-        	  EpreuveClinique[] listeEpreuves = patient.getDossierPatient().getListeBOs().get( 0).getListeEpreuves();
-        	  EpreuveClinique epreuveClinique = listeEpreuves[0];  // la derniere epreue clinique
+        	EpreuveClinique[] listeEpreuves = patient.getDossierPatient().getListeBOs().get( 0).getListeEpreuves();
+        	EpreuveClinique epreuveClinique = listeEpreuves[0]; 
           	Questionnaire questionnaire = (Questionnaire) epreuveClinique.getListeTests().get(0);
           	
           	 questionnaire.ajouterQstLibre(qstLibre);

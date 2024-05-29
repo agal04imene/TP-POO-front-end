@@ -51,5 +51,9 @@ public class Patient implements Serializable {
 	public ArrayList<TestExercices> getListeSeriesExercices() {
 		return listeSeriesExos;
 	}
+
+	public void setNbRDV(int i) {
+		nbRDV = i;
+	}
 	
 }

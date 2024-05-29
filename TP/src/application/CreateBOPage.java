@@ -1,15 +1,21 @@
 package application;
 
+import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class CreateBOPage {
     private Stage primaryStage;
     private Orthophoniste orthophoniste;
     private Patient patient;
+    private BO bo;
 
     public CreateBOPage(Stage primaryStage, Patient patient, Orthophoniste orthophoniste) {
         this.primaryStage = primaryStage;
@@ -21,88 +27,41 @@ public class CreateBOPage {
         if (patient.VerifierNbBilans()) {
             afficherChoixAnamnese(scene);
         } else {
-            afficherAjoutEpreuveClinique(scene);
+            startAjouterEpreuveClinique(scene);
         }
+        scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
     }
-    
-    
 
     private void afficherChoixAnamnese(Scene scene) {
-        VBox layout = new VBox(10);
-        Label instruction = new Label("Saisir le numéro du modèle d'anamnèse à remplir :");
-        TextField choixModele = new TextField();
-        HBox buttonsBox = new HBox(20);
-        Button btnSuivant = new Button("Suivant");
-        Button btnAnnuler = new Button("Annuler");
-        buttonsBox.getChildren().addAll(btnAnnuler, btnSuivant);
-        buttonsBox.setAlignment(Pos.CENTER);
+        VBox vbox = new VBox(20);
+        vbox.setAlignment(Pos.CENTER);
 
-        layout.getChildren().addAll(instruction, choixModele, buttonsBox);
-        scene.setRoot(layout);
+        Label label = new Label("Choisissez une anamnèse pour créer le bilan orthophonique :");
+        label.setStyle("-fx-font-size: 18px;");
 
-        btnSuivant.setOnAction(e -> {
-            try {
-                int index = Integer.parseInt(choixModele.getText());
-                if (index >= 0 && index < patient.getListeAnamneses().size()) {
-                    Anamnese modeleChoisi = patient.getListeAnamneses().get(index);
-                    afficherRemplissageAnamnese(scene, modeleChoisi);
-                } else {
-                    showAlert("Index invalide", "Veuillez entrer un numéro de modèle valide.");
-                }
-            } catch (NumberFormatException ex) {
-                showAlert("Format invalide", "Veuillez entrer un numéro valide.");
+        ComboBox<Anamnese> anamneseComboBox = new ComboBox<>();
+        anamneseComboBox.getItems().addAll(patient.getListeAnamneses());
+        anamneseComboBox.setPromptText("Sélectionnez une anamnèse");
+
+        Button nextButton = new Button("Suivant");
+        nextButton.setOnAction(e -> {
+            if (anamneseComboBox.getValue() != null) {
+                bo.setAnamnese(anamneseComboBox.getValue());
+                startAjouterEpreuveClinique(scene);
+            } else {
+                showAlert("Sélectionnez une anamnèse avant de continuer.");
             }
         });
-        
+
+        vbox.getChildren().addAll(label, anamneseComboBox, nextButton);
+
+        scene.setRoot(vbox);
         scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-        btnAnnuler.setOnAction(e -> {
-            load(scene);
-        });
+        primaryStage.setScene(scene);
+        primaryStage.show();
     }
 
-    private void afficherRemplissageAnamnese(Scene scene, Anamnese anamnese) {
-        VBox layout = new VBox(10);
-        Label instruction = new Label("Remplissez les réponses pour chaque question :");
-        ScrollPane scrollPane = new ScrollPane();
-        VBox questionLayout = new VBox(10);
-
-        for (QstLibreAnamnese question : anamnese.getQuestions()) {
-            Label enonceLabel = new Label(question.getEnonce());
-            TextField reponseField = new TextField();
-            questionLayout.getChildren().addAll(enonceLabel, reponseField);
-
-            reponseField.textProperty().addListener((obs, oldText, newText) -> {
-                question.setReponse(newText);
-            });
-        }
-
-        scrollPane.setContent(questionLayout);
-        HBox buttonsBox = new HBox(20);
-        Button btnSuivant = new Button("Suivant");
-        Button btnAnnuler = new Button("Annuler");
-        buttonsBox.getChildren().addAll(btnAnnuler, btnSuivant);
-        buttonsBox.setAlignment(Pos.CENTER);
-
-        layout.getChildren().addAll(instruction, scrollPane, buttonsBox);
-        scene.setRoot(layout);
-
-        btnSuivant.setOnAction(e -> {
-            BO bo = patient.getDossierPatient().getListeBOs().get(0);
-            bo.setAnamnese(anamnese);
-            afficherAjoutEpreuveClinique(scene);
-        });
-
-        scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-        
-        btnAnnuler.setOnAction(e -> {
-            for (QstLibreAnamnese question : anamnese.getQuestions()) {
-                question.setReponse("");
-            }
-            afficherChoixAnamnese(scene);
-        });
-    }
-
-    private void afficherAjoutEpreuveClinique(Scene scene) {
+    public void startAjouterEpreuveClinique(Scene scene) {
         VBox layout = new VBox(10);
         Label instruction = new Label("Ajouter une épreuve clinique:");
         TextField nombreObservations = new TextField();
@@ -116,115 +75,339 @@ public class CreateBOPage {
         btnSuivant.setOnAction(e -> {
             try {
                 int nbObs = Integer.parseInt(nombreObservations.getText());
-                afficherAjoutObservations(scene, nbObs);
+                ajouterObservations(nbObs, scene);
             } catch (NumberFormatException ex) {
-                showAlert("Format invalide", "Veuillez entrer un nombre valide.");
+                showAlert("Veuillez entrer un nombre valide.");
             }
         });
     }
 
-    private void afficherAjoutObservations(Scene scene, int nbObs) {
+    // Method to add observations
+    private void ajouterObservations(int nbObs, Scene scene) {
         VBox layout = new VBox(10);
-        Label instruction = new Label("Entrez les observations cliniques :");
-        ScrollPane scrollPane = new ScrollPane();
-        VBox observationLayout = new VBox(10);
+        List<TextField> observationFields = new ArrayList<>();
 
-        TextField[] observationFields = new TextField[nbObs];
         for (int i = 0; i < nbObs; i++) {
             TextField observationField = new TextField();
             observationField.setPromptText("Observation " + (i + 1));
-            observationLayout.getChildren().add(observationField);
-            observationFields[i] = observationField;
+            observationFields.add(observationField);
+            layout.getChildren().add(observationField);
         }
 
-        scrollPane.setContent(observationLayout);
-        HBox buttonsBox = new HBox(20);
         Button btnSuivant = new Button("Suivant");
-        Button btnAnnuler = new Button("Annuler");
-        buttonsBox.getChildren().addAll(btnAnnuler, btnSuivant);
-        buttonsBox.setAlignment(Pos.CENTER);
-
-        layout.getChildren().addAll(instruction, scrollPane, buttonsBox);
+        layout.getChildren().add(btnSuivant);
         scene.setRoot(layout);
+        scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 
         btnSuivant.setOnAction(e -> {
             EpreuveClinique epreuve = new EpreuveClinique();
+
             for (TextField field : observationFields) {
                 epreuve.ajouterObservation(field.getText());
             }
-            afficherAjoutTests(scene, epreuve);
-        });
 
-        btnAnnuler.setOnAction(e -> {
-            afficherAjoutEpreuveClinique(scene);
+            ajouterTest(epreuve, scene);
         });
-        
-        scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
     }
 
-    private void afficherAjoutTests(Scene scene, EpreuveClinique epreuve) {
+    // Method to choose and add a test (Questionnaire or TextExercices)
+    private void ajouterTest(EpreuveClinique epreuve, Scene scene) {
         VBox layout = new VBox(10);
-        Label instruction = new Label("Voulez-vous ajouter un questionnaire ou une série d'exercices ?");
-        HBox buttonsBox = new HBox(20);
-        Button btnQuestionnaire = new Button("Questionnaire");
-        Button btnSerieExercices = new Button("Série d'exercices");
-        buttonsBox.getChildren().addAll(btnQuestionnaire, btnSerieExercices);
-        buttonsBox.setAlignment(Pos.CENTER);
-        
+        Label instruction = new Label("Choisissez le type de test à ajouter :");
 
-        layout.getChildren().addAll(instruction, buttonsBox);
+        Button btnQuestionnaire = new Button("Questionnaire");
+        Button btnTextExercices = new Button("TextExercices");
+
+        layout.getChildren().addAll(instruction, btnQuestionnaire, btnTextExercices);
         scene.setRoot(layout);
+        scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 
         btnQuestionnaire.setOnAction(e -> {
-            afficherChoixQuestionnaire(scene, epreuve);
+            choisirQuestionnaire(epreuve, scene);
         });
 
-        btnSerieExercices.setOnAction(e -> {
-            afficherAjoutExercices(scene, epreuve);
+        btnTextExercices.setOnAction(e -> {
+            choisirTextExercices(epreuve, scene);
         });
-        
-        scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
     }
 
-    private void afficherChoixQuestionnaire(Scene scene, EpreuveClinique epreuve) {
+    // Method to choose and add a Questionnaire
+    private void choisirQuestionnaire(EpreuveClinique epreuve, Scene scene) {
         VBox layout = new VBox(10);
         Label instruction = new Label("Choisissez le questionnaire à remplir :");
-        TextField choixQuestionnaire = new TextField();
+        ComboBox<Questionnaire> questionnaireComboBox = new ComboBox<>();
+        questionnaireComboBox.getItems().addAll(patient.getListeQuestionnaires());
+
         Button btnSuivant = new Button("Suivant");
 
-        layout.getChildren().addAll(instruction, choixQuestionnaire, btnSuivant);
+        layout.getChildren().addAll(instruction, questionnaireComboBox, btnSuivant);
         scene.setRoot(layout);
         scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 
         btnSuivant.setOnAction(e -> {
-            try {
-                int index = Integer.parseInt(choixQuestionnaire.getText());
-                if (index >= 0 && index < patient.getListeQuestionnaires().size()) {
-                    Questionnaire questionnaireChoisi = patient.getListeQuestionnaires().get(index);
-                    afficherRemplissageQuestionnaire(scene, epreuve, questionnaireChoisi);
-                } else {
-                    showAlert("Index invalide", "Veuillez entrer un numéro de questionnaire valide.");
-                }
-            } catch (NumberFormatException ex) {
-                showAlert("Format invalide", "Veuillez entrer un numéro valide.");
+            Questionnaire selectedQuestionnaire = questionnaireComboBox.getValue();
+            if (selectedQuestionnaire != null) {
+                afficherRemplissageQuestionnaire(epreuve, selectedQuestionnaire, scene);
+            } else {
+                showAlert("Veuillez choisir un questionnaire.");
             }
         });
     }
 
-    private void afficherRemplissageQuestionnaire(Scene scene, EpreuveClinique epreuve, Questionnaire questionnaire) {
-        // This one is for filling the answers to a questionnaire
+    // Method to fill in a Questionnaire
+    private void afficherRemplissageQuestionnaire(EpreuveClinique epreuve, Questionnaire questionnaire, Scene scene) {
+        VBox layout = new VBox(10);
+        Label instruction = new Label("Remplissez les réponses pour chaque question :");
+
+        for (Question question : questionnaire.getListeQuestion()) {
+            Label enonceLabel = new Label(question.getEnonce());
+            TextField reponseField = new TextField();
+
+            layout.getChildren().addAll(enonceLabel, reponseField);
+
+            if (question instanceof QCM) {
+                QCM qcm = (QCM) question;
+                VBox reponsesLayout = new VBox(5);
+
+                for (int i = 0; i < qcm.getNbPropositions(); i++) {
+                    TextField propositionField = new TextField();
+                    reponsesLayout.getChildren().add(propositionField);
+
+                    propositionField.textProperty().addListener((obs, oldText, newText) -> {
+                        qcm.getReponses().add(newText);
+                    });
+                }
+
+                layout.getChildren().add(reponsesLayout);
+
+            } else if (question instanceof QCU) {
+                QCU qcu = (QCU) question;
+                TextField reponseUniqueField = new TextField();
+
+                reponseUniqueField.textProperty().addListener((obs, oldText, newText) -> {
+                    qcu.setReponse(newText);
+                });
+
+                layout.getChildren().add(reponseUniqueField);
+
+            } else if (question instanceof QuestionLibre) {
+                QuestionLibre questionLibre = (QuestionLibre) question;
+                TextField reponseLibreField = new TextField();
+
+                reponseLibreField.textProperty().addListener((obs, oldText, newText) -> {
+                    questionLibre.setReponse(newText);
+                });
+
+                layout.getChildren().add(reponseLibreField);
+            }
+        }
+
+        Button btnSuivant = new Button("Suivant");
+        layout.getChildren().add(btnSuivant);
+        scene.setRoot(layout);
+        scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+
+        btnSuivant.setOnAction(e -> {
+            questionnaire.setScoreTotal(questionnaire.calculeScoreTotal());
+            epreuve.getListeTests().add(questionnaire);
+            ajouterBO(epreuve);
+        });
     }
 
-    private void afficherAjoutExercices(Scene scene, EpreuveClinique epreuve) {
-    	// This one is for filling une série d'exercices
+    // Method to choose and add TextExercices
+    private void choisirTextExercices(EpreuveClinique epreuve, Scene scene) {
+        VBox layout = new VBox(10);
+        Label instruction = new Label("Choisissez la série d'exercices à remplir :");
+        ComboBox<TestExercices> exercicesComboBox = new ComboBox<>();
+        exercicesComboBox.getItems().addAll(patient.getListeSeriesExercices());
+
+        Button btnSuivant = new Button("Suivant");
+
+        layout.getChildren().addAll(instruction, exercicesComboBox, btnSuivant);
+        scene.setRoot(layout);
+        scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+
+        btnSuivant.setOnAction(e -> {
+            TestExercices selectedExercices = exercicesComboBox.getValue();
+            if (selectedExercices != null) {
+                afficherRemplissageExercice(epreuve, selectedExercices, scene);
+            } else {
+                showAlert("Veuillez choisir une série d'exercices.");
+            }
+        });
     }
 
+    // Method to fill in TextExercices
+    private void afficherRemplissageExercice(EpreuveClinique epreuve, TestExercices exercices, Scene scene) {
+        VBox layout = new VBox(10);
+        Label instruction = new Label("Remplissez le score pour chaque exercice :");
 
-    private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
+        for (Exercice exercice : exercices.getExercices()) {
+            Label consigneLabel = new Label("Consigne : " + exercice.getConsigne());
+            Label materielLabel = new Label("Matériel : " + exercice.getNomMaterial());
+            TextField scoreField = new TextField();
+
+            scoreField.textProperty().addListener((obs, oldText, newText) -> {
+                try {
+                    int score = Integer.parseInt(newText);
+                    exercice.setScore(0, score); // Update only the first score
+                } catch (NumberFormatException ignored) {
+                }
+            });
+
+            layout.getChildren().addAll(consigneLabel, materielLabel, scoreField);
+        }
+
+        Button btnSuivant = new Button("Suivant");
+        layout.getChildren().add(btnSuivant);
+        scene.setRoot(layout);
+        scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+
+        btnSuivant.setOnAction(e -> {
+            exercices.calculeScoreTotal();
+            epreuve.getListeTests().add(exercices);
+            ajouterBO(epreuve);
+            afficherAjoutDiagnostic(scene);
+        });
+    }
+
+    // Method to add EpreuveClinique to the BO
+    private void ajouterBO(EpreuveClinique epreuve) {
+    	EpreuveClinique[] nouvellesEpreuves = Arrays.copyOf(bo.getListeEpreuves(), bo.getListeEpreuves().length + 1);
+    	nouvellesEpreuves[bo.getListeEpreuves().length] = epreuve;
+    	bo.setListeEpreuves(nouvellesEpreuves);
+    }
+
+    
+    private void afficherAjoutDiagnostic(Scene scene) {
+        VBox vbox = new VBox(20);
+        vbox.setAlignment(Pos.CENTER);
+
+        Label label = new Label("Ajoutez un diagnostic :");
+        label.setStyle("-fx-font-size: 18px;");
+
+        Label nbTroublesLabel = new Label("Nombre de troubles à ajouter :");
+        Spinner<Integer> nbTroublesSpinner = new Spinner<>(0, 10, 0);
+        nbTroublesSpinner.setEditable(true);
+
+        Button nextButton = new Button("Suivant");
+        nextButton.setOnAction(e -> {
+            int nbTroubles = nbTroublesSpinner.getValue();
+            if (nbTroubles > 0) {
+                afficherFormulaireTroubles(scene, nbTroubles);
+            } else {
+                showAlert("Veuillez entrer un nombre valide de troubles à ajouter.");
+            }
+        });
+
+        vbox.getChildren().addAll(label, nbTroublesLabel, nbTroublesSpinner, nextButton);
+
+        scene.setRoot(vbox);
+        scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+        
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+
+    private void afficherFormulaireTroubles(Scene scene, int nbTroubles) {
+        VBox vbox = new VBox(20);
+        vbox.setAlignment(Pos.CENTER);
+
+        Label label = new Label("Remplissez les détails des troubles :");
+        label.setStyle("-fx-font-size: 18px;");
+
+        List<HBox> troubleForms = new ArrayList<>();
+        for (int i = 0; i < nbTroubles; i++) {
+            HBox hbox = new HBox(10);
+            hbox.setAlignment(Pos.CENTER);
+
+            Label nomLabel = new Label("Nom du trouble " + (i + 1) + " :");
+            TextField nomField = new TextField();
+
+            Label categorieLabel = new Label("Catégorie du trouble " + (i + 1) + " :");
+            ComboBox<CatTrouble> categorieComboBox = new ComboBox<>();
+            categorieComboBox.getItems().addAll(CatTrouble.values());
+
+            hbox.getChildren().addAll(nomLabel, nomField, categorieLabel, categorieComboBox);
+            troubleForms.add(hbox);
+        }
+
+        Button saveButton = new Button("Enregistrer");
+        saveButton.setOnAction(e -> {
+            List<Trouble> troubles = new ArrayList<>();
+            for (int i = 0; i < nbTroubles; i++) {
+                HBox hbox = troubleForms.get(i);
+                String nom = ((TextField) hbox.getChildren().get(1)).getText();
+                CatTrouble categorie = ((ComboBox<CatTrouble>) hbox.getChildren().get(3)).getValue();
+                if (nom != null && !nom.isEmpty() && categorie != null) {
+                    troubles.add(new Trouble(nom, categorie.name()));
+                } else {
+                    showAlert("Veuillez remplir tous les champs pour chaque trouble.");
+                    return;
+                }
+            }
+
+            try {
+                for (Trouble trouble : troubles) {
+                    bo.getDiagnostic().ajouterTrouble(trouble);
+                }
+                bo.setDiagnostic(bo.getDiagnostic());
+                afficherProjetTherapeutique(scene);
+            } catch (TroubleDejaExistantException ex) {
+                showAlert("Un trouble avec le même nom existe déjà dans le diagnostic.");
+            }
+        });
+
+        vbox.getChildren().addAll(label);
+        vbox.getChildren().addAll(troubleForms);
+        vbox.getChildren().addAll(saveButton);
+
+        scene.setRoot(vbox);
+        scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+        
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+
+    private void afficherProjetTherapeutique(Scene scene) {
+        VBox vbox = new VBox(20);
+        vbox.setAlignment(Pos.CENTER);
+
+        Label label = new Label("Ajoutez un projet thérapeutique :");
+        label.setStyle("-fx-font-size: 18px;");
+
+        TextArea projetTherapeutiqueArea = new TextArea();
+        projetTherapeutiqueArea.setPromptText("Entrez le projet thérapeutique...");
+
+        Button saveButton = new Button("Enregistrer");
+        saveButton.setOnAction(e -> {
+            String projetTherapeutiqueText = projetTherapeutiqueArea.getText();
+            bo.setProjetTherapeutique(projetTherapeutiqueText);
+            enregistrerBO();
+        });
+
+        vbox.getChildren().addAll(label, projetTherapeutiqueArea, saveButton);
+
+        scene.setRoot(vbox);
+        scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+
+    private void enregistrerBO() {
+    	// n7etou le BO li khdmnah f la liste ta3 les BOs ta3 le patient
+        patient.getDossierPatient().getListeBOs().add(bo);
+
+        System.out.println("Bilan Orthophonique enregistré avec succès !");
+
+        patient.setNbRDV(patient.getNbRDV()+1); // on incrémente nbRDV bach lmera ljaya man3awdouch ndirou anamnèse :)
+    }
+    
+    private void showAlert(String message) {
+        Alert alert = new Alert(null);
         alert.setContentText(message);
         alert.showAndWait();
     }
 }
+
+    

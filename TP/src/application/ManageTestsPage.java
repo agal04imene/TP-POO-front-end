@@ -1,5 +1,6 @@
 package application;
 
+import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -9,12 +10,20 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.scene.input.MouseEvent;
 import javafx.event.EventHandler;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.geometry.Pos;
 import javafx.scene.text.Text;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -22,10 +31,12 @@ import java.util.Set;
 public class ManageTestsPage {
     private Stage primaryStage;
     private Patient patient;
-
-    public ManageTestsPage(Stage primaryStage, Patient patient) {
+    private Orthophoniste orthophoniste;
+    private HashSet<Orthophoniste> comptesUtilisateurs = loadComptesOrthophonisteFromFile();
+    public ManageTestsPage(Stage primaryStage, Patient patient,Orthophoniste orthophoniste) {
         this.primaryStage = primaryStage;
         this.patient = patient;
+        this.orthophoniste=orthophoniste;
     }
 
     public void load(Scene scene) {
@@ -35,8 +46,11 @@ public class ManageTestsPage {
         Label gestionQuestionnaireLabel = createLabel("Gestion des Questionnaires");
         Label gestionExercicesLabel = createLabel("Gestion des Séries d'Exercices");
         Label gestionAnamnesesLabel = createLabel("Gestion des Anamnèses");
+        Label backLabel = createLabel("Retour");
 
         // Sub-menus
+        VBox retourOption = createSubMenu(createLabel("Retour", event -> backButton()));
+        
         VBox questionnaireOptions = createSubMenu(
                 createLabel("Création d'un nouveau questionnaire", event -> showQuestionnaireCreationDialog()),
                 createLabel("Ajouter une question à un questionnaire", event -> goToAjoutQuestionPage()),
@@ -50,7 +64,7 @@ public class ManageTestsPage {
                 createLabel("Modifier un exercice dans une série d'exercices")
         );
 
-        VBox anamnesesOptions = createSubMenu(
+        VBox anamnesesOptions = createSubMenu (
                 createLabel("Créer une anamnèse et la sauvegarder dans un bilan orthophonique", event -> showCreateAnamnesePopup())
         );
 
@@ -67,17 +81,30 @@ public class ManageTestsPage {
         TitledPane gestionQuestionnaireTitledPane = new TitledPane("Gestion des Questionnaires", questionnaireOptions);
         TitledPane gestionExercicesTitledPane = new TitledPane("Gestion des Séries d'Exercices", exercicesOptions);
         TitledPane gestionAnamnesesTitledPane = new TitledPane("Gestion des Anamnèses", anamnesesOptions);
+        TitledPane retourPane = new TitledPane("Retour", retourOption);
 
         // Accordion
         Accordion accordion = new Accordion();
-        accordion.getPanes().addAll(gestionQuestionnaireTitledPane, gestionExercicesTitledPane, gestionAnamnesesTitledPane);
+        
+
+        accordion.getPanes().addAll(gestionQuestionnaireTitledPane, gestionExercicesTitledPane, gestionAnamnesesTitledPane, retourPane);
 
         StackPane root = new StackPane(accordion);
         scene = new Scene(root, 600, 600);
+        
+
+        
         scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+        
 
         primaryStage.setScene(scene);
         primaryStage.show();
+
+    }
+    
+    private void backButton() {
+         MenuPrincipal addPatientPage = new MenuPrincipal(primaryStage, orthophoniste);
+         addPatientPage.load(new Scene(new BorderPane(), 600, 600));
     }
 
     private Label createLabel(String text) {
@@ -103,18 +130,18 @@ public class ManageTestsPage {
     }
 
     private void goToAjoutQuestionPage() {
-        AjoutQuestionPage ajoutQuestionPage = new AjoutQuestionPage(primaryStage, patient);
+        AjoutQuestionPage ajoutQuestionPage = new AjoutQuestionPage(primaryStage, patient,orthophoniste);
         ajoutQuestionPage.load(new Scene(new StackPane(), 600, 600));  // Adjust the scene as needed
     }
 
     private void goToSupprQuestionPage() {
-        SupprQuestionPage supprQuestionPage = new SupprQuestionPage(primaryStage, patient);
-        supprQuestionPage.load();  // Adjust the scene as needed
+        SupprQuestionPage supprQuestionPage = new SupprQuestionPage(primaryStage, patient,orthophoniste);
+        supprQuestionPage.load(new Scene(new StackPane(), 600, 600));  // Adjust the scene as needed
     }
     
     private void goToModifQuestionPage() {
-        ModifQuestionPage modifQuestionPage = new ModifQuestionPage();
-        modifQuestionPage.start(primaryStage);  // Adjust the scene as needed
+        ModifQuestionPage modifQuestionPage = new ModifQuestionPage(primaryStage,patient,orthophoniste);
+        modifQuestionPage.load(new Scene(new StackPane(), 600, 600));  // Adjust the scene as needed
     }
 
     private void handleAddAnamneseQuestion() {
@@ -143,6 +170,7 @@ public class ManageTestsPage {
 
     private void showAddAnamneseQuestionPopup(String title, String[] categories) {
         Stage popup = new Stage();
+        int age = patient.getDossierPatient().getAge();
         VBox popupRoot = new VBox(10);
         popupRoot.setPadding(new Insets(20));
         popupRoot.setAlignment(Pos.CENTER);
@@ -156,12 +184,31 @@ public class ManageTestsPage {
 
         Button confirmButton = new Button("Confirmer");
         Button cancelButton = new Button("Annuler");
-
+        
         confirmButton.setOnAction(e -> {
             String enonce = enonceField.getText();
             String categorie = categoryComboBox.getValue();
+            Anamnese anamnese = patient.getDossierPatient().getListeBOs().get(0).getAnamnese();
+            Set <QstLibreAnamnese> listeQuestions = anamnese.getQuestions();
+           
             if (enonce != null && !enonce.isEmpty() && categorie != null) {
-                // Logic to add the question to the anamnese !!!
+                if (age>=18) {
+                	QstLibreAnamneseAdulte qst = new QstLibreAnamneseAdulte(enonce,categorie);
+                	 listeQuestions.add(qst);
+                }else {
+                	QstLibreAnamneseAdulte qst = new QstLibreAnamneseAdulte(enonce,categorie);
+                	 listeQuestions.add(qst);
+                }
+                patient.getDossierPatient().getListeBOs().get(0).setAnamnese(anamnese);
+                
+               // sauvegarder dans le fichier               
+                
+                if (this.comptesUtilisateurs.contains(orthophoniste)) {
+                 	comptesUtilisateurs.remove(orthophoniste);                
+                 }
+              	comptesUtilisateurs.add(orthophoniste);
+              	saveComptesOrthophonisteToFile(comptesUtilisateurs);
+                 
                 popup.close();
             } else {
                 // Show error message
@@ -181,6 +228,7 @@ public class ManageTestsPage {
     }
 
     private void showModifyAnamneseQuestionPopup(String title, String[] categories) {
+    	 int age = patient.getDossierPatient().getAge();
         Stage popup = new Stage();
         VBox popupRoot = new VBox(10);
         popupRoot.setPadding(new Insets(20));
@@ -214,6 +262,7 @@ public class ManageTestsPage {
         confirmButton.setOnAction(e -> {
             QstLibreAnamnese selectedQuestion = questionsComboBox.getValue();
             if (selectedQuestion != null) {
+            	
                 selectedQuestion.setEnonce(enonceField.getText());
                 selectedQuestion.setReponse(reponseField.getText());
                 String newCategorie = categoryComboBox.getValue();
@@ -222,6 +271,8 @@ public class ManageTestsPage {
                 } else if (selectedQuestion instanceof QstLibreAnamneseEnfant) {
                     ((QstLibreAnamneseEnfant) selectedQuestion).setCategorie(newCategorie);
                 }
+                
+                
                 popup.close();
             } else {
                 // Show error message
@@ -255,35 +306,42 @@ public class ManageTestsPage {
         grid.setHgap(10);
         grid.setVgap(10);
         grid.setPadding(new Insets(20, 150, 10, 10));
-
+        
+        TextField nameField = new TextField();
+        nameField.setPromptText("Nom du questionnaire");
+        
         TextField typeField = new TextField();
         typeField.setPromptText("Type (QCM, QCU, Libre)");
         TextField numberField = new TextField();
         numberField.setPromptText("Nombre de questions");
 
-        grid.add(new Label("Type de questions:"), 0, 0);
-        grid.add(typeField, 1, 0);
-        grid.add(new Label("Nombre de questions:"), 0, 1);
-        grid.add(numberField, 1, 1);
+        
+        grid.add(new Label("Nom du questionnaire:"), 0, 0);
+        grid.add(nameField, 1, 0);
+        grid.add(new Label("Type de questions:"), 0, 1);
+        grid.add(typeField, 1, 1);
+        grid.add(new Label("Nombre de questions:"), 0, 2);
+        grid.add(numberField, 1, 2);
 
         dialog.getDialogPane().setContent(grid);
 
         Optional<Void> result = dialog.showAndWait();
         if (result.isPresent()) {
             String type = typeField.getText().trim();
+            String name = nameField.getText().trim();
             int numberOfQuestions = Integer.parseInt(numberField.getText().trim());
 
             // Affichage des formulaires de question selon le type
             if ("QCM".equalsIgnoreCase(type) || "QCU".equalsIgnoreCase(type)) {
-                showQCMQCUForms(numberOfQuestions, type);
+                showQCMQCUForms(numberOfQuestions, type,name);
             } else if ("Libre".equalsIgnoreCase(type)) {
-                showQuestionLibreForms(numberOfQuestions);
+                showQuestionLibreForms(numberOfQuestions,name);
             }
         }
     }
 
 
-    private void showQCMQCUForms(int numberOfQuestions, String type) {
+    private void showQCMQCUForms(int numberOfQuestions, String type,String nomQuestionnaire) {
         Dialog<Void> dialog = new Dialog<>();
         dialog.setTitle("Formulaires de " + type);
 
@@ -296,7 +354,6 @@ public class ManageTestsPage {
         // Apply style class to scrollPane
         scrollPane.getStyleClass().add("custom-scroll-pane");
 
-        List<Question> questions = new ArrayList<>();
 
         for (int i = 0; i < numberOfQuestions; i++) {
             GridPane questionGrid = new GridPane();
@@ -358,6 +415,11 @@ public class ManageTestsPage {
         dialog.getDialogPane().getButtonTypes().addAll(confirmButtonType, cancelButtonType);
 
         dialog.setResultConverter(dialogButton -> {
+        	ArrayList<Questionnaire>  listeQuestionnaires = patient.getDossierPatient().getListeQuestionnaire();
+        	if (listeQuestionnaires==null) {
+        		listeQuestionnaires= new ArrayList<Questionnaire>();
+        	}
+        	 Questionnaire questionnaire= new Questionnaire (nomQuestionnaire,numberOfQuestions) ;
             if (dialogButton == confirmButtonType) {
                 for (Node node : vbox.getChildren()) {
                     if (node instanceof GridPane) {
@@ -366,12 +428,14 @@ public class ManageTestsPage {
                         VBox choicesVBox = (VBox) gridPane.getChildren().get(5);
                         ArrayList<String> reponsesJustes = new ArrayList<>();
                         ArrayList<String> reponsesFausses = new ArrayList<>();
+                        ArrayList<String> reponses = new ArrayList<>();
 
                         for (Node choiceNode : choicesVBox.getChildren()) {
                             if (choiceNode instanceof HBox) {
                                 HBox hBox = (HBox) choiceNode;
                                 String choice = ((TextField) hBox.getChildren().get(0)).getText();
                                 boolean isCorrect = ((CheckBox) hBox.getChildren().get(1)).isSelected();
+                                reponses.add(choice);
                                 if (isCorrect) {
                                     reponsesJustes.add(choice);
                                 } else {
@@ -379,35 +443,46 @@ public class ManageTestsPage {
                                 }
                             }
                         }
-                        Question question;
+                                             
+
                         if ("QCM".equalsIgnoreCase(type)) {
                             QCM qcm = new QCM(enonce);
                             qcm.setNbPropositions(reponsesJustes.size() + reponsesFausses.size());
                             qcm.setReponsesJustes(reponsesJustes);
                             qcm.setReponsesFausses(reponsesFausses);
-                            question = qcm;
+                            qcm.setReponses(reponses);
+                            questionnaire.ajouterQcm(qcm);
                         } else {
                             QCU qcu = new QCU(enonce);
                             qcu.setReponseJuste(reponsesJustes.isEmpty() ? null : reponsesJustes.get(0));
                             qcu.setReponsesFausses(reponsesFausses);
-                            question = qcu;
-                        }
-                        questions.add(question);
+                            qcu.setReponses(reponses);
+                            questionnaire.ajouterQcu(qcu);
+                        }                
+                        
                     }
                 }
-                return null;
-            }
+                listeQuestionnaires.add(questionnaire);
+                // sauvegarder dans le fichier               
+                
+                if (this.comptesUtilisateurs.contains(orthophoniste)) {
+                 	comptesUtilisateurs.remove(orthophoniste);
+                
+                 }
+              	comptesUtilisateurs.add(orthophoniste);
+              	saveComptesOrthophonisteToFile(comptesUtilisateurs);
+                          
+            }  
+           
             return null;
         });
-
-        dialog.showAndWait();
-        sauvegarderQuestions(questions);
+        dialog.showAndWait();  
     }
 
 
 
         
-    private void showQuestionLibreForms(int numberOfQuestions) {
+    private void showQuestionLibreForms(int numberOfQuestions,String nomQuestionnaire) {
         Dialog<Void> dialog = new Dialog<>();
         dialog.setTitle("Formulaires de Question Libre");
         dialog.getDialogPane().setPrefSize(600, 400);
@@ -441,28 +516,35 @@ public class ManageTestsPage {
         dialog.getDialogPane().getButtonTypes().addAll(confirmButtonType, cancelButtonType);
 
         dialog.setResultConverter(dialogButton -> {
+        	ArrayList<Questionnaire>  listeQuestionnaires = patient.getDossierPatient().getListeQuestionnaire();
+        	if (listeQuestionnaires==null) {
+        		listeQuestionnaires= new ArrayList<Questionnaire>();
+        	}
+       	    Questionnaire questionnaire= new Questionnaire (nomQuestionnaire,numberOfQuestions) ;
             if (dialogButton == confirmButtonType) {
                 for (Node node : vbox.getChildren()) {
                     if (node instanceof GridPane) {
                         GridPane gridPane = (GridPane) node;
                         String enonce = ((TextField) gridPane.getChildren().get(1)).getText();
                         QuestionLibre question = new QuestionLibre(enonce);
-                        questions.add(question);
+                        questionnaire.ajouterQstLibre(question);
                     }
                 }
-                return null;
+             // sauvegarder dans le fichier               
+                listeQuestionnaires.add(questionnaire);
+                if (this.comptesUtilisateurs.contains(orthophoniste)) {
+                 	comptesUtilisateurs.remove(orthophoniste);               
+                 }
+              	comptesUtilisateurs.add(orthophoniste);
+              	saveComptesOrthophonisteToFile(comptesUtilisateurs);
+               
             }
             return null;
         });
 
         dialog.showAndWait();
-        sauvegarderQuestions(questions);
     }
 
-    
-    private void sauvegarderQuestions(List<? extends Question> questions) {
-        // la logic de l'ajout des questions est la (back-end work please) !!!!
-    }
     
 
     private void showCreateAnamnesePopup() {
@@ -521,13 +603,15 @@ public class ManageTestsPage {
         List<TextField> enonceFields = new ArrayList<>();
         List<ComboBox<String>> categoryComboBoxes = new ArrayList<>();
 
-        String[] categoriesAdult = {"Histoire de la Maladie", "Suivi Médical"};
-        String[] categoriesChild = {"Structure Familiale", "Dynamique Familiale", "Antecedents Familiaux", "Conditions Natales", "Developpement Psychomoteur", "Developpement Langagier", "Caractere Comportement"};
+        String[] categoriesAdult = {"Histoire de la maladie", "Suivi médical"};
+        String[] categoriesChild = {"Structure familiale", "Dynamique familiale", "Antecedents familiaux", "Conditions natales", "Développement psychomoteur", "Développement langagier", "Caractere et comportement"};
         String[] categories = patient.getDossierPatient().getAge() >= 18 ? categoriesAdult : categoriesChild;
-
+        Anamnese anamnese = new Anamnese ();
+        Set <QstLibreAnamnese> listeQuestions= anamnese.getQuestions();
         for (int i = 0; i < numberOfQuestions; i++) {
             TextField enonceField = new TextField();
             enonceField.setPromptText("Énoncé de la question " + (i + 1));
+            
             enonceFields.add(enonceField);
 
             ComboBox<String> categoryComboBox = new ComboBox<>();
@@ -535,16 +619,40 @@ public class ManageTestsPage {
             categoryComboBox.setPromptText("Catégorie de la question " + (i + 1));
             categoryComboBoxes.add(categoryComboBox);
 
+            // Action event handler for the ComboBox
+            categoryComboBox.setOnAction(event -> {
+                String enonce = enonceField.getText(); // Get the text from the TextField
+                String categorie = categoryComboBox.getValue(); // Get the selected value from the ComboBox
+
+                if (patient.getDossierPatient().getAge() > 18) {
+                    QstLibreAnamneseAdulte qst = new QstLibreAnamneseAdulte(enonce, categorie);
+                    listeQuestions.add(qst);
+                } else {
+                    QstLibreAnamneseEnfant qst = new QstLibreAnamneseEnfant(enonce, categorie);
+                    listeQuestions.add(qst);
+                }
+            });
+
             scrollContent.getChildren().addAll(enonceField, categoryComboBox);
         }
 
+        anamnese.listeQuestions=listeQuestions;
+        patient.getListeAnamnese().add(anamnese);
+       
         scrollPane.setContent(scrollContent);
 
         Button saveButton = new Button("Sauvegarder");
         Button cancelButton = new Button("Annuler");
 
         saveButton.setOnAction(e -> {
-            // Logique de sauvegarde des questions
+            // sauvegarder dans le fichier               
+        	 
+           /* if (this.comptesUtilisateurs.contains(orthophoniste)) {
+             	comptesUtilisateurs.remove(orthophoniste);               
+             }
+          	comptesUtilisateurs.add(orthophoniste);
+          	saveComptesOrthophonisteToFile(comptesUtilisateurs);
+          	*/
             popup.close();
         });
 
@@ -558,6 +666,27 @@ public class ManageTestsPage {
         popupScene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
         popup.setScene(popupScene);
         popup.showAndWait();
+    }
+    
+    public void saveComptesOrthophonisteToFile(HashSet<Orthophoniste> comptesUtilisateurs) {
+    	File f = new File ("comptesOrthophoniste.ser");
+        try (FileOutputStream fileOut = new FileOutputStream(f);
+             ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
+            out.writeObject(comptesUtilisateurs);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+    }
+    public HashSet<Orthophoniste> loadComptesOrthophonisteFromFile() {
+        HashSet<Orthophoniste> comptesUtilisateurs = null;
+        try (FileInputStream fileIn = new FileInputStream("comptesOrthophoniste.ser");
+             ObjectInputStream in = new ObjectInputStream(fileIn)) {
+            comptesUtilisateurs = (HashSet<Orthophoniste>) in.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return comptesUtilisateurs;
     }
 
 

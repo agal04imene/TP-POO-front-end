@@ -7,13 +7,15 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashSet;
-
+import java.util.Optional;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -130,12 +132,19 @@ public class SignUpPage {
                 saveComptesOrthophonisteToFile(comptesUtilisateurs);
                 
 
-                // Show success alert
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Success");
                 alert.setHeaderText(null);
                 alert.setContentText("Your account has been successfully created.");
-                alert.showAndWait();
+
+                ButtonType continuerButtonType = new ButtonType("Continuer", ButtonData.OK_DONE);
+                alert.getButtonTypes().setAll(continuerButtonType);
+
+                Optional<ButtonType> result = alert.showAndWait();
+                if (result.isPresent() && result.get() == continuerButtonType) {
+                	MenuPrincipal menuPrincipal = new MenuPrincipal(primaryStage,nouvelOrthophoniste);
+                    menuPrincipal.load(scene);
+                }
                 
             }
         });
@@ -160,8 +169,8 @@ public class SignUpPage {
         root.setBottom(backButton);
 
         Scene signUpScene = new Scene(root, 800, 700);
-        signUpScene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
         primaryStage.setScene(signUpScene);
+        signUpScene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
     }
 
     private boolean isStrongPassword(String password) {

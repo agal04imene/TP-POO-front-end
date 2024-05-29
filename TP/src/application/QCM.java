@@ -1,10 +1,15 @@
 package application;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class QCM extends Question {
+public class QCM extends Question implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private int nbPropositions;
 	private ArrayList<String> reponsesJustes;
 	private ArrayList<String> reponsesFausses;

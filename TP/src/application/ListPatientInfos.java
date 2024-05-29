@@ -1,6 +1,13 @@
 package application;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.HashSet;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -12,14 +19,14 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-public class PatientsList_Projet {
+public class ListPatientInfos {
     private Stage primaryStage;
-    private Orthophoniste orthophoniste;
     private HashSet<Patient> listePatients = new HashSet<Patient>();
-
-    public PatientsList_Projet(Stage primaryStage, Orthophoniste orthophoniste) {
+    Orthophoniste orthophoniste;
+    
+    public  ListPatientInfos(Stage primaryStage,Orthophoniste orthophoniste) {
         this.primaryStage = primaryStage;
-        this.orthophoniste = orthophoniste;
+        this.orthophoniste =orthophoniste;
     }
 
     public void load(Scene scene) {
@@ -38,18 +45,20 @@ public class PatientsList_Projet {
         labelsBox.setAlignment(Pos.CENTER);
         labelsBox.setPadding(new Insets(20));
 
-        listePatients = orthophoniste.getListePatients();
+       
 
+        
+        if (orthophoniste.getListePatients() == null) {
+       	 orthophoniste.setListePatients(new HashSet<>())  ;
+       	}
+        
+        listePatients = orthophoniste.getListePatients();
+        		
         for (Patient patient : listePatients) {
-            String buttonText = "\"" + patient.getDossierPatient().getNom() + " " +
-                                patient.getDossierPatient().getPrenom() + "\"\n\t" +
-                                patient.getDossierPatient().getAge() + " ans";
-            Button button = createLightGrayButton(buttonText);
+            Button button = createLightGrayButton("\"" + patient.getDossierPatient().getNom() + " " + patient.getDossierPatient().getPrenom() + "\"\n\t" + patient.getDossierPatient().getAge() + " ans");
             button.setOnAction(e -> {
-                AjoutProjet ajoutProjetPage = new AjoutProjet(primaryStage, patient, orthophoniste);
-                Scene ajoutProjetScene = new Scene(new BorderPane(), 500, 400); // Créez une nouvelle scène
-                ajoutProjetPage.load(ajoutProjetScene); // Chargez la page de création BO
-                primaryStage.setScene(ajoutProjetScene); // Changez de scène dans la fenêtre principale
+            	PatientsInfos  patientInfos = new PatientsInfos(primaryStage, patient,orthophoniste);
+            	patientInfos .load(scene);
             });
             labelsBox.getChildren().add(button);
         }
@@ -60,7 +69,7 @@ public class PatientsList_Projet {
         Button backButton = new Button("Retour");
         backButton.getStyleClass().add("button-style");
         backButton.setOnAction(e -> {
-            ViewPatientRecordsPage viewPatientRecordsPage = new ViewPatientRecordsPage(primaryStage, orthophoniste);
+            ViewPatientRecordsPage viewPatientRecordsPage = new ViewPatientRecordsPage(primaryStage,orthophoniste);
             viewPatientRecordsPage.load(scene);
         });
 
@@ -72,8 +81,12 @@ public class PatientsList_Projet {
         primaryStage.setScene(patientAssessmentReportsScene);
     }
 
+
+    
+
     private Button createLightGrayButton(String text) {
         Button button = new Button(text);
+        button.getStyleClass().add("light-gray-button"); // Assuming you have a CSS class for light gray buttons
         button.setPrefWidth(200); // Adjust the width as needed
         button.setPrefHeight(40); // Adjust the height as needed
         return button;

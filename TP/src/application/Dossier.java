@@ -19,9 +19,10 @@ public class Dossier implements Serializable {
     private String dateDeNaissance ;
     private String lieuDeNaissance ;
     // Dossier médicale du patient
-    private ArrayList<BO> listeBOs ;
-    private ArrayList<FicheDeSuivi> historiqueFichesSuivi ;
-     private ArrayList<RendezVous> listeRendezVous ;
+    private ArrayList<BO> listeBOs = new  ArrayList<BO> () ;
+    private ArrayList<FicheDeSuivi> historiqueFichesSuivi = new ArrayList<FicheDeSuivi> ();
+     private ArrayList<RendezVous> listeRendezVous =  new ArrayList<RendezVous>() ;
+     private ArrayList<Questionnaire> listeQuestionnaire= new ArrayList<Questionnaire> () ;
     
     public Dossier(String nom, String prenom, int age, String adresse, String dateDeNaissance, String lieuDeNaissance ) {
     	numDossier++ ; // le numéro du dossier s'incrémente chaque fois qu'on ajoute un patient
@@ -88,6 +89,15 @@ public class Dossier implements Serializable {
     	this.listeBOs=listeBO;
     }
     
+    public String getDateNaissance() {
+    	return this.dateDeNaissance;
+    }
+    
+    public String getLieuNaissance() {
+    	return this.lieuDeNaissance;
+    }
+
+    
     public static int getNumDossier () {
     	return numDossier;
     }
@@ -95,10 +105,24 @@ public class Dossier implements Serializable {
     	return this.historiqueFichesSuivi;
     }
     
+    public ArrayList<RendezVous> getListeRendezVous (){
+    	return this.listeRendezVous;
+    }
+    
+    public ArrayList<Questionnaire> getListeQuestionnaire(){
+    	return this.listeQuestionnaire;
+    }
+    
     public BO getLatestBO() {
         if (listeBOs.isEmpty()) {
             return null; // Return null or handle the case where no BOs exist
         }
         return listeBOs.get(listeBOs.size() - 1); // Return the last BO in the list
+    }
+    
+    public void ajouterRendezVous(RendezVous r) {
+    	if (!this.listeRendezVous.contains(r)) {
+    		  listeRendezVous.add(r);
+    	}
     }
 }

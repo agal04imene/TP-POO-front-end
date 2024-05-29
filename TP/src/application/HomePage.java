@@ -40,7 +40,7 @@ public class HomePage {
             FileInputStream imagePath = new FileInputStream("logo.png");
             Image image = new Image(imagePath);
             ImageView imageView = new ImageView(image);
-            imageView.setFitHeight(450);
+            imageView.setFitHeight(420);
             imageView.setFitWidth(400);
 
             Text centerText = new Text("OrthoNet : La gestion optimisée pour votre cabinet d'orthophonie!");

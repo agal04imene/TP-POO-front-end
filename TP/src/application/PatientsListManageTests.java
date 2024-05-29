@@ -57,7 +57,7 @@ public class PatientsListManageTests {
         for (Patient patient : listePatients) {
             Button button = createLightGrayButton("\"" + patient.getDossierPatient().getNom() + " " + patient.getDossierPatient().getPrenom() + "\"\n\t" + patient.getDossierPatient().getAge() + " ans");
             button.setOnAction(e -> {
-            	ManageTestsPage manageTests = new ManageTestsPage(primaryStage, patient);
+            	ManageTestsPage manageTests = new ManageTestsPage(primaryStage, patient,orthophoniste);
             	manageTests.load(scene);
             });
             labelsBox.getChildren().add(button);
@@ -69,8 +69,8 @@ public class PatientsListManageTests {
         Button backButton = new Button("Retour");
         backButton.getStyleClass().add("button-style");
         backButton.setOnAction(e -> {
-            ViewPatientRecordsPage viewPatientRecordsPage = new ViewPatientRecordsPage(primaryStage,orthophoniste);
-            viewPatientRecordsPage.load(scene);
+            MenuPrincipal menuPrincipal = new MenuPrincipal(primaryStage,orthophoniste);
+            menuPrincipal.load(scene);
         });
 
         BorderPane.setAlignment(backButton, Pos.CENTER);

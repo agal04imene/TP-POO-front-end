@@ -1,7 +1,13 @@
 package application;
 
-public abstract class Test {
+import java.io.Serializable;
 
+public abstract class Test implements Serializable{
+
+	/**
+	 * 
+	 */
+	 private static final long serialVersionUID = 1L;
 	private String nom;
 	private int capacite;
 	protected float scoreTotal = 0;

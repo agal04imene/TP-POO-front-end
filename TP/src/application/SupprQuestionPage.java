@@ -2,38 +2,59 @@ package application;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 
 public class SupprQuestionPage {
-    private Patient patient;
     private Stage primaryStage;
-    private ArrayList<Question> questions; // This array is filled with the questions from all "les questionnaires" of a patient
+    private Patient patient;
+    private QCM qcm = new QCM(null);
+    private QCU qcu = new QCU(null);
+    private QuestionLibre qstLibre = new QuestionLibre(null);
+    private String proposition = null;
+    private HashSet<Orthophoniste> comptesUtilisateurs = loadComptesOrthophonisteFromFile();
+    private Orthophoniste orthophoniste;
 
-    public SupprQuestionPage(Stage primaryStage, Patient patient) {
+
+
+    public SupprQuestionPage(Stage primaryStage, Patient patient,Orthophoniste orthophoniste) {
         this.primaryStage = primaryStage;
         this.patient = patient;
-        this.questions = new ArrayList<>();
-
-     
+        this.orthophoniste=orthophoniste;
     }
 
- 
-
-    public void load() {
-        primaryStage.setTitle("Suppression de Question");
+    public void load(Scene scene) {
+        primaryStage.setTitle("Ajout de Question");
 
         // Title
-        Label title = new Label("Quel type de question souhaitez-vous supprimer ?");
-        title.setStyle("-fx-font-size: 16px; -fx-font-family: 'Ubuntu';");
+        Text title = new Text("Quel type de question souhaitez-vous ajouter ?\n\n");
+        title.setFont(Font.font("Ubuntu", 16));
 
         // Buttons
         Button qcmButton = createMenuButton("QCM");
@@ -52,14 +73,23 @@ public class SupprQuestionPage {
         root.getChildren().addAll(title, buttonBox);
 
         // Handlers for buttons
-        qcmButton.setOnAction(e -> primaryStage.setScene(createQuestionTypeScene("QCM")));
-        qcuButton.setOnAction(e -> primaryStage.setScene(createQuestionTypeScene("QCU")));
-        libreButton.setOnAction(e -> primaryStage.setScene(createQuestionTypeScene("Question Libre")));
+        qcmButton.setOnAction(e -> {
+            primaryStage.setScene(createQCMListScene(primaryStage));
+            primaryStage.setTitle("Liste des questionnaires QCM");
+        });
+        qcuButton.setOnAction(e -> {
+            primaryStage.setScene(createQCUListScene(primaryStage));
+            primaryStage.setTitle("Ajouter une question QCU");
+        });
+        libreButton.setOnAction(e -> {
+            primaryStage.setScene(createQstLibreListScene(primaryStage));
+            primaryStage.setTitle("Ajouter une question libre");
+        });
 
         // Scene setup
-        Scene scene = new Scene(root, 500, 200);
-        scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+        scene = new Scene(root, 500, 200);
         primaryStage.setScene(scene);
+        scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
         primaryStage.show();
         primaryStage.centerOnScreen();
     }
@@ -71,147 +101,383 @@ public class SupprQuestionPage {
         return button;
     }
 
-    private Scene createQuestionTypeScene(String questionType) {
-        Label title = new Label("Choisissez une méthode de suppression pour " + questionType + " :");
-        title.setStyle("-fx-font-size: 16px; -fx-font-family: 'Ubuntu';");
-
-        Button showAllButton = new Button("Afficher toutes les questions");
-        Button enterEnonceButton = new Button("Entrer l'énoncé de la question à supprimer");
-
-        VBox root = new VBox(20);
+    private Scene createQCMListScene(Stage primaryStage) {
+        VBox root = new VBox(10);
         root.setAlignment(Pos.CENTER);
         root.setPadding(new Insets(20));
-        root.getChildren().addAll(title, showAllButton, enterEnonceButton);
 
-        showAllButton.setOnAction(e -> primaryStage.setScene(createShowAllQuestionsScene(questionType)));
-        enterEnonceButton.setOnAction(e -> primaryStage.setScene(createEnterEnonceScene(questionType)));
-
-        Scene scene = new Scene(root, 500, 200);
-        scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-        return scene;
-    }
-
-    private Scene createShowAllQuestionsScene(String questionType) {
-        Label title = new Label("Sélectionnez la question à supprimer :");
-        
-    	
-        title.setStyle("-fx-font-size: 16px; -fx-font-family: 'Ubuntu';");
-
-        VBox questionsBox = new VBox(10);
-        questionsBox.setAlignment(Pos.CENTER_LEFT);
-        questionsBox.setPadding(new Insets(10));
-        EpreuveClinique[] listeEpreuves = patient.getDossierPatient().getListeBOs().get( 0).getListeEpreuves();
-    	EpreuveClinique epreuveClinique = listeEpreuves[0];  // la derniere epreue clinique
-    	
-    	if (questionType.equalsIgnoreCase("qcm")){
-    		Questionnaire  questionnaire ;
-    		ArrayList<QCM> questions;
-    		questionnaire = (Questionnaire)epreuveClinique.getListeTests().get(0);
-    		questions = questionnaire.getListeQcm();
-    	} else if  (questionType.equalsIgnoreCase("qcm")) {
-    		Questionnaire  questionnaire ;
-    		ArrayList<QCM> questions;
-    		questionnaire = (Questionnaire)epreuveClinique.getListeTests().get(0);
-    		questions = questionnaire.getListeQcm();
-    	}else {
-    		Questionnaire  questionnaire ;
-    		ArrayList<QuestionLibre> questions;
-    		questionnaire = (Questionnaire)epreuveClinique.getListeTests().get(0);
-    		questions = questionnaire.getListeQstLibre();
-    	}
-    	
-        for (Question question : questions) {
-            if (isQuestionType(question, questionType)) {
-                Button questionButton = new Button(question.getEnonce());
-                questionButton.getStyleClass().add("choix-button");
-                questionButton.setOnAction(e -> {
-                    boolean supp =questions.remove(question);
-                    
-                    if (supp) primaryStage.setScene(createConfirmationScene("Question supprimée."));
-                });
-                questionsBox.getChildren().add(questionButton);
-            }
+        ArrayList<Questionnaire> listeQuestionnaires = patient.getDossierPatient().getListeQuestionnaire();
+        for (int i = 0; i < listeQuestionnaires.size(); i++) {
+            int index = i; // To use inside the lambda
+            Button qcmButton = new Button("QCM " + (i + 1));
+            qcmButton.setOnAction(e -> {
+                primaryStage.setScene(createQCMScene(primaryStage, listeQuestionnaires.get(index)));
+                primaryStage.setTitle("Ajouter une question QCM " + (index + 1));
+            });
+            root.getChildren().add(qcmButton);
         }
 
-        ScrollPane scrollPane = new ScrollPane(questionsBox);
+        ScrollPane scrollPane = new ScrollPane(root);
         scrollPane.setFitToWidth(true);
 
-        VBox root = new VBox(20);
-        root.setAlignment(Pos.CENTER);
-        root.setPadding(new Insets(20));
-        root.getChildren().addAll(title, scrollPane);
-
-        Scene scene = new Scene(root, 500, 400);
+        Scene scene = new Scene(scrollPane, 500, 400);
         scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+        primaryStage.centerOnScreen();
+
         return scene;
     }
 
-    private Scene createEnterEnonceScene(String questionType) {
-        Label title = new Label("Entrez l'énoncé de la question à supprimer :");
-        title.setStyle("-fx-font-size: 16px; -fx-font-family: 'Ubuntu';");
+    private Scene createQCMScene(Stage primaryStage, Questionnaire questionnaire) {
+        VBox qcmLayout = new VBox(10);
+        qcmLayout.setAlignment(Pos.CENTER);
+        qcmLayout.setPadding(new Insets(20));
 
-        TextField enonceField = new TextField();
-        Button deleteButton = new Button("Supprimer");
-        Button annulerButton = new Button("Annuler");
+        ArrayList<QCM> listeQcm = questionnaire.getListeQcm();
+        for (int i = 0; i < listeQcm.size(); i++) {
+            QCM qcm = listeQcm.get(i);
+            Label questionLabel = new Label("Question : " + qcm.getEnonce());
+            questionLabel.getStyleClass().add("label-style");
+
+            VBox propositionsBox = new VBox(10);
+          
+
+            for (int j = 0; j < qcm.getNbPropositions(); j++) {
+                Label choixLabel = new Label("Choix " + (j + 1) + ": " + qcm.getReponses().get(j));
+                choixLabel.getStyleClass().add("label-style");
+                propositionsBox.getChildren().add(choixLabel);
+            }
+
+            qcmLayout.getChildren().addAll(questionLabel, propositionsBox);
+        }
+
+        Button removeButton = new Button("Supprimer");
+        Button cancelButton = new Button("Annuler");
         HBox buttonsBox = new HBox(20);
-        buttonsBox.getChildren().addAll(deleteButton, annulerButton);
+        buttonsBox.getChildren().addAll(removeButton, cancelButton);
         buttonsBox.setAlignment(Pos.CENTER);
 
-        deleteButton.setOnAction(e -> {
-            String enonce = enonceField.getText();
-            boolean questionFound = false;
-            for (Question question : questions) {
-                if (isQuestionType(question, questionType) && question.getEnonce().equals(enonce)) {
-                    questions.remove(question);
-                    primaryStage.setScene(createConfirmationScene("Question supprimée."));
-                    questionFound = true;
-                    break;
-                }
-            }
-            if (!questionFound) {
-                primaryStage.setScene(createConfirmationScene("Question non trouvée."));
-            }
+        removeButton.setOnAction(event -> {
+        	showQCMQCUForms("QCM",questionnaire);
+          
         });
+        cancelButton.setOnAction(event -> primaryStage.close());
 
-        annulerButton.setOnAction(e -> primaryStage.setScene(new Scene(new VBox(new Label("Action annulée")), 400, 300)));
+        qcmLayout.getChildren().add(buttonsBox);
 
-        VBox root = new VBox(20);
-        root.setAlignment(Pos.CENTER);
-        root.setPadding(new Insets(20));
-        root.getChildren().addAll(title, enonceField, buttonsBox);
+        ScrollPane scrollPane = new ScrollPane(qcmLayout);
+        scrollPane.setFitToWidth(true);
 
-        Scene scene = new Scene(root, 500, 200);
+        Scene scene = new Scene(scrollPane, 500, 400);
         scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+        primaryStage.centerOnScreen();
+
         return scene;
     }
-
-    private Scene createConfirmationScene(String message) {
-        Label confirmationLabel = new Label(message);
-        confirmationLabel.setStyle("-fx-font-size: 16px; -fx-font-family: 'Ubuntu';");
-
-        Button backButton = new Button("Retour");
-        backButton.setOnAction(e -> load());
-
-        VBox root = new VBox(20);
+    
+    private Scene createQCUListScene(Stage primaryStage) {
+        VBox root = new VBox(10);
         root.setAlignment(Pos.CENTER);
         root.setPadding(new Insets(20));
-        root.getChildren().addAll(confirmationLabel, backButton);
 
-        Scene scene = new Scene(root, 500, 200);
-        scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-        return scene;
-    }
-
-    private boolean isQuestionType(Question question, String questionType) {
-        switch (questionType) {
-            case "QCM":
-                return question instanceof QCM;
-            case "QCU":
-                return question instanceof QCU;
-            case "Question Libre":
-                return question instanceof QuestionLibre;
-            default:
-                return false;
+        ArrayList<Questionnaire> listeQuestionnaires = patient.getDossierPatient().getListeQuestionnaire();
+        for (int i = 0; i < listeQuestionnaires.size(); i++) {
+            int index = i; // To use inside the lambda
+            Button qcuButton = new Button("QCU " + (i + 1));
+            qcuButton.setOnAction(e -> {
+                primaryStage.setScene(createQCUScene(primaryStage, listeQuestionnaires.get(index)));
+                primaryStage.setTitle("Ajouter une question QCM " + (index + 1));
+            });
+            root.getChildren().add(qcuButton);
         }
+
+        ScrollPane scrollPane = new ScrollPane(root);
+        scrollPane.setFitToWidth(true);
+
+        Scene scene = new Scene(scrollPane, 500, 400);
+        scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+        primaryStage.centerOnScreen();
+
+        return scene;
     }
+
+    private Scene createQCUScene(Stage primaryStage,Questionnaire questionnaire) {
+    	 VBox qcuLayout = new VBox(10);
+         qcuLayout.setAlignment(Pos.CENTER);
+         qcuLayout.setPadding(new Insets(20));
+
+         ArrayList<QCU> listeQcu = questionnaire.getListeQcu();
+         for (int i = 0; i < listeQcu.size(); i++) {
+             QCU qcu = listeQcu.get(i);
+             Label questionLabel = new Label("Question : " + qcm.getEnonce());
+             questionLabel.getStyleClass().add("label-style");
+
+             VBox propositionsBox = new VBox(10);
+           
+
+             for (int j = 0; j < qcm.getNbPropositions(); j++) {
+                 Label choixLabel = new Label("Choix " + (j + 1) + ": " + qcm.getReponses().get(j));
+                 choixLabel.getStyleClass().add("label-style");
+                 propositionsBox.getChildren().add(choixLabel);
+             }
+
+             qcuLayout.getChildren().addAll(questionLabel, propositionsBox);
+         }
+
+         Button addButton = new Button("Supprimer");
+         Button cancelButton = new Button("Annuler");
+         HBox buttonsBox = new HBox(20);
+         buttonsBox.getChildren().addAll(addButton, cancelButton);
+         buttonsBox.setAlignment(Pos.CENTER);
+
+         addButton.setOnAction(event -> {
+
+
+         });
+         cancelButton.setOnAction(event -> primaryStage.close());
+
+         qcuLayout.getChildren().add(buttonsBox);
+
+         ScrollPane scrollPane = new ScrollPane(qcuLayout);
+         scrollPane.setFitToWidth(true);
+
+         Scene scene = new Scene(scrollPane, 500, 400);
+         scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+         primaryStage.centerOnScreen();
+
+         return scene;
+     }
+    
+
+    
+    private Scene createQstLibreListScene(Stage primaryStage) {
+        VBox root = new VBox(10);
+        root.setAlignment(Pos.CENTER);
+        root.setPadding(new Insets(20));
+
+        ArrayList<Questionnaire> listeQuestionnaires = patient.getDossierPatient().getListeQuestionnaire();
+        for (int i = 0; i < listeQuestionnaires.size(); i++) {
+            int index = i; // To use inside the lambda
+            Button qstLibreButton = new Button("Question " + (i + 1));
+            qstLibreButton.setOnAction(e -> {
+                primaryStage.setScene(createLibreScene(primaryStage, listeQuestionnaires.get(index)));
+                primaryStage.setTitle("Ajouter une question libre " + (index + 1));
+            });
+            root.getChildren().add(qstLibreButton);
+        }
+
+        ScrollPane scrollPane = new ScrollPane(root);
+        scrollPane.setFitToWidth(true);
+
+        Scene scene = new Scene(scrollPane, 500, 400);
+        scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+        primaryStage.centerOnScreen();
+
+        return scene;
+    }
+
+
+    private Scene createLibreScene(Stage primaryStage,Questionnaire questionnaire) {
+    	 VBox qstLibreLayout = new VBox(10);
+         qstLibreLayout.setAlignment(Pos.CENTER);
+         qstLibreLayout.setPadding(new Insets(20));
+
+         ArrayList<QuestionLibre> listeQstLibre = questionnaire.getListeQstLibre();
+         for (int i = 0; i < listeQstLibre.size(); i++) {
+             QuestionLibre qstLibre = listeQstLibre.get(i);
+             Label questionLabel = new Label("Question : " + qstLibre.getEnonce());
+             questionLabel.getStyleClass().add("label-style");
+
+
+
+         Button addButton = new Button("Supprimer");
+         Button cancelButton = new Button("Annuler");
+         HBox buttonsBox = new HBox(20);
+         buttonsBox.getChildren().addAll(addButton, cancelButton);
+         buttonsBox.setAlignment(Pos.CENTER);
+
+         addButton.setOnAction(event -> {
+        	 showQCMQCUForms("Libre",questionnaire);
+
+         });
+         cancelButton.setOnAction(event -> primaryStage.close());
+
+         qstLibreLayout.getChildren().add(buttonsBox);
+
+    }
+         
+         ScrollPane scrollPane = new ScrollPane(qstLibreLayout);
+         scrollPane.setFitToWidth(true);
+         Scene scene = new Scene(scrollPane, 500, 400);
+         scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+         primaryStage.centerOnScreen();
+         return scene;
+    }
+    
+    private void showQCMQCUForms(String type,Questionnaire questionnaire) {
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Formulaires de " + type);
+
+        ScrollPane scrollPane = new ScrollPane();
+        VBox vbox = new VBox();
+        vbox.setSpacing(10);
+        vbox.setPadding(new Insets(10));
+        scrollPane.setContent(vbox);
+        
+        // Apply style class to scrollPane
+        scrollPane.getStyleClass().add("custom-scroll-pane");
+
+
+            GridPane questionGrid = new GridPane();
+            questionGrid.setHgap(10);
+            questionGrid.setVgap(10);
+
+            // Apply style class to questionGrid
+            questionGrid.getStyleClass().add("custom-grid-pane");
+
+            TextField enonceField = new TextField();
+            enonceField.setPromptText("Énoncé de la question");
+
+            TextField choiceNumberField = new TextField();
+            choiceNumberField.setPromptText("Nombre de choix");
+
+            Button addChoicesButton = new Button("Ajouter les choix");
+            VBox choicesBox = new VBox();
+            choicesBox.setSpacing(5);
+
+            // Apply style classes to text fields and button
+            enonceField.getStyleClass().add("custom-text-field");
+            choiceNumberField.getStyleClass().add("custom-text-field");
+            addChoicesButton.getStyleClass().add("custom-button");
+
+            addChoicesButton.setOnAction(e -> {
+                int choiceNumber = Integer.parseInt(choiceNumberField.getText().trim());
+                choicesBox.getChildren().clear();
+                for (int j = 0; j < choiceNumber; j++) {
+                    HBox choiceHBox = new HBox();
+                    choiceHBox.setSpacing(5);
+                    TextField choiceField = new TextField();
+                    choiceField.setPromptText("Choix " + (j + 1));
+                    CheckBox correctCheckBox = new CheckBox("Réponse juste");
+
+                    // Apply style classes to choice fields and checkboxes
+                    choiceField.getStyleClass().add("custom-text-field");
+                    correctCheckBox.getStyleClass().add("custom-check-box");
+
+                    choiceHBox.getChildren().addAll(choiceField, correctCheckBox);
+                    choicesBox.getChildren().add(choiceHBox);
+                }
+            });
+
+            questionGrid.add(new Label("Énoncé:"), 0, 0);
+            questionGrid.add(enonceField, 1, 0);
+            questionGrid.add(new Label("Nombre de choix:"), 0, 1);
+            questionGrid.add(choiceNumberField, 1, 1);
+            questionGrid.add(addChoicesButton, 2, 1);
+            questionGrid.add(choicesBox, 1, 2, 2, 1);
+
+            vbox.getChildren().add(questionGrid);
+        
+
+        dialog.getDialogPane().setContent(scrollPane);
+        dialog.getDialogPane().setPrefSize(600, 400);
+
+        ButtonType confirmButtonType = new ButtonType("Confirmer", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelButtonType = new ButtonType("Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);
+        dialog.getDialogPane().getButtonTypes().addAll(confirmButtonType, cancelButtonType);
+
+        dialog.setResultConverter(dialogButton -> {
+        	ArrayList<Questionnaire>  listeQuestionnaires = patient.getDossierPatient().getListeQuestionnaire();
+        	if (listeQuestionnaires==null) {
+        		listeQuestionnaires= new ArrayList<Questionnaire>();
+        	}
+   
+            if (dialogButton == confirmButtonType) {
+                for (Node node : vbox.getChildren()) {
+                    if (node instanceof GridPane) {
+                        GridPane gridPane = (GridPane) node;
+                        String enonce = ((TextField) gridPane.getChildren().get(1)).getText();
+                        VBox choicesVBox = (VBox) gridPane.getChildren().get(5);
+                        ArrayList<String> reponsesJustes = new ArrayList<>();
+                        ArrayList<String> reponsesFausses = new ArrayList<>();
+                        ArrayList<String> reponses = new ArrayList<>();
+
+                        for (Node choiceNode : choicesVBox.getChildren()) {
+                            if (choiceNode instanceof HBox) {
+                                HBox hBox = (HBox) choiceNode;
+                                String choice = ((TextField) hBox.getChildren().get(0)).getText();
+                                boolean isCorrect = ((CheckBox) hBox.getChildren().get(1)).isSelected();
+                                reponses.add(choice);
+                                if (isCorrect) {
+                                    reponsesJustes.add(choice);
+                                } else {
+                                    reponsesFausses.add(choice);
+                                }
+                            }
+                        }
+
+                        if ("QCM".equalsIgnoreCase(type)) {
+                            QCM qcm = new QCM(enonce);
+                            qcm.setNbPropositions(reponsesJustes.size() + reponsesFausses.size());
+                            qcm.setReponsesJustes(reponsesJustes);
+                            qcm.setReponsesFausses(reponsesFausses);
+                            qcm.setReponses(reponses);
+                            questionnaire.ajouterQcm(qcm);
+                        } else {
+                            QCU qcu = new QCU(enonce);
+                            qcu.setReponseJuste(reponsesJustes.isEmpty() ? null : reponsesJustes.get(0));
+                            qcu.setReponsesFausses(reponsesFausses);
+                            qcu.setReponses(reponses);
+                            questionnaire.ajouterQcu(qcu);
+                        }                
+                        
+                    }
+                }
+                if (listeQuestionnaires.contains(questionnaire)) listeQuestionnaires.remove(questionnaire);
+                listeQuestionnaires.add(questionnaire);
+                             
+            } 
+            
+             // sauvegarder dans le fichier               
+            
+            if (this.comptesUtilisateurs.contains(orthophoniste)) {
+             	comptesUtilisateurs.remove(orthophoniste);
+            
+             }
+          	comptesUtilisateurs.add(orthophoniste);
+          	saveComptesOrthophonisteToFile(comptesUtilisateurs);
+            return null;
+           
+        });
+        // sauvegarder dans le fichier               
+        
+        if (this.comptesUtilisateurs.contains(orthophoniste)) {
+         	comptesUtilisateurs.remove(orthophoniste);
+        
+         }
+      	comptesUtilisateurs.add(orthophoniste);
+      	saveComptesOrthophonisteToFile(comptesUtilisateurs);
+        dialog.showAndWait();
+    }
+    
+    public void saveComptesOrthophonisteToFile(HashSet<Orthophoniste> comptesUtilisateurs) {
+    	File f = new File ("comptesOrthophoniste.ser");
+        try (FileOutputStream fileOut = new FileOutputStream(f);
+             ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
+            out.writeObject(comptesUtilisateurs);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+    }
+    public HashSet<Orthophoniste> loadComptesOrthophonisteFromFile() {
+        HashSet<Orthophoniste> comptesUtilisateurs = null;
+        try (FileInputStream fileIn = new FileInputStream("comptesOrthophoniste.ser");
+             ObjectInputStream in = new ObjectInputStream(fileIn)) {
+            comptesUtilisateurs = (HashSet<Orthophoniste>) in.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return comptesUtilisateurs;
+    }
+    
 }

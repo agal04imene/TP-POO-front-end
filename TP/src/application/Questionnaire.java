@@ -1,14 +1,14 @@
 package application;
 
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 
-public class Questionnaire  extends Test {    //extends Test : add it when u push 
-    private ArrayList<Question> listeQuestion ; 
-    private ArrayList<QCM> listeQcm;  
-    private ArrayList<QCU> listeQcu;
-    private ArrayList<QuestionLibre> listeQstLibre;
-
+public class Questionnaire  extends Test implements Serializable {    
+	private static final long serialVersionUID = 1L;
+    private ArrayList<Question> listeQuestion;
+    private ArrayList<QCM> listeQcm = new ArrayList<>();
+    private ArrayList<QCU> listeQcu = new ArrayList<>();
+    private ArrayList<QuestionLibre> listeQstLibre = new ArrayList<>();
 
     public Questionnaire(String nom, int capacite) {
         super(nom, capacite);
@@ -27,8 +27,7 @@ public class Questionnaire  extends Test {    //extends Test : add it when u pus
         listeQuestion.add(qst);
     }
 
-    
-	@Override
+    @Override
     public float calculeScoreTotal() {
         int totalScore = 0;
         for (Question question : listeQuestion) {
@@ -38,99 +37,84 @@ public class Questionnaire  extends Test {    //extends Test : add it when u pus
     }
 
     public int rechercherQuestion(String enonce) {
-		int pos = 0;
-		for (Question ex : listeQuestion) {
-			if (ex.equals(ex) == true) {
-				break;
-			}
-			pos++;
-		}
-		return (pos);
-	}
+        int pos = 0;
+        for (Question ex : listeQuestion) {
+            if (ex.getEnonce().equals(enonce)) {
+                return pos;
+            }
+            pos++;
+        }
+        return -1;  // Return -1 if the question is not found
+    }
 
     public void supprimerQuestion(String enonce) {
-		int p=rechercherQuestion(enonce);
-		listeQuestion.remove(p);
-	}
-    
-    public void ajouterQcm(QCM nouveauQcm) {
-        if (!listeQcm.contains(nouveauQcm)) {
-            listeQcm.add(nouveauQcm);
-        } else {
-            System.out.println("Le test que vous voulez ajouter existe déjà.");
-        }
-    }
-    
-    public void ajouterQcu(QCU nouveauQcu) {
-        if (!listeQcu.contains(nouveauQcu)) {
-            listeQcu.add(nouveauQcu);
-        } else {
-            System.out.println("Le test que vous voulez ajouter existe déjà.");
-        }
-    }
-    
-    public void ajouterQstLibre(QuestionLibre nouveauQstLibre) {
-        if (!listeQstLibre.contains(nouveauQstLibre)) {
-            listeQstLibre.add(nouveauQstLibre);
-        } else {
-            System.out.println("Le test que vous voulez ajouter existe déjà.");
-        }
-    }
-    
-    public void supprimerQcm(QCM ancienQcm) {
-        if (listeQcm.contains(ancienQcm)) {
-            listeQcm.remove(ancienQcm);
-        } else {
-            System.out.println("Le test que vous voulez supprimer n'existe pas.");
-        }
-    }
-    
-    public void supprimerQcu(QCU ancienQcu) {
-        if (listeQcu.contains(ancienQcu)) {
-            listeQcu.remove(ancienQcu);
-            System.out.println("Le test QCU a été supprimé avec succès.");
-        } else {
-            System.out.println("Le test QCU que vous voulez supprimer n'existe pas.");
-        }
-    }
-    
-    public void supprimerQuestionLibre(QuestionLibre ancienneQuestionLibre) {
-        if (listeQstLibre.contains(ancienneQuestionLibre)) {
-            listeQstLibre.remove(ancienneQuestionLibre);
-            System.out.println("La question libre a été supprimée avec succès.");
-        } else {
-            System.out.println("La question libre que vous voulez supprimer n'existe pas.");
-        }
-    }
-    
-    
-    public void modifierQcm(QCM ancienQcm, QCM nouveauQcm) {
-    	if (listeQcm.contains(ancienQcm)) {
-    		listeQcm.remove(ancienQcm);
-    		listeQcm.add(nouveauQcm);
-        } else {
-            System.out.println("La question à modifier n'existe pas dans la liste.");
-        }
-    }
-    
-    public void modifierQcu(QCU ancienQcu, QCU nouveauQcu) {
-    	if (listeQcu.contains(ancienQcu)) {
-    		listeQcu.remove(ancienQcu);
-    		listeQcu.add(nouveauQcu);
-        } else {
-            System.out.println("La question à modifier n'existe pas dans la liste.");
-        }
-    }
-    
-    public void modifierTQcm(QuestionLibre ancienQstLibre, QuestionLibre nouveauQstLibre) {
-    	if (listeQstLibre.contains(ancienQstLibre)) {
-    		listeQstLibre.remove(ancienQstLibre);
-    		listeQstLibre.add(nouveauQstLibre);
-        } else {
-            System.out.println("La question à modifier n'existe pas dans la liste.");
+        int p = rechercherQuestion(enonce);
+        if (p >= 0) {
+            listeQuestion.remove(p);
         }
     }
 
+    public void ajouterQcm(QCM nouveauQcm) {
+        ajouterQuestion(listeQcm, nouveauQcm);
+    }
+
+    public void ajouterQcu(QCU nouveauQcu) {
+        ajouterQuestion(listeQcu, nouveauQcu);
+    }
+
+    public void ajouterQstLibre(QuestionLibre nouveauQstLibre) {
+        ajouterQuestion(listeQstLibre, nouveauQstLibre);
+    }
+
+    public void supprimerQcm(QCM ancienQcm) {
+        supprimerQuestion(listeQcm, ancienQcm);
+    }
+
+    public void supprimerQcu(QCU ancienQcu) {
+        supprimerQuestion(listeQcu, ancienQcu);
+    }
+
+    public void supprimerQuestionLibre(QuestionLibre ancienneQuestionLibre) {
+        supprimerQuestion(listeQstLibre, ancienneQuestionLibre);
+    }
+
+    private <T> void ajouterQuestion(ArrayList<T> liste, T nouvelleQuestion) {
+        if (!liste.contains(nouvelleQuestion)) {
+            liste.add(nouvelleQuestion);
+        } else {
+            System.out.println("La question que vous voulez ajouter existe déjà.");
+        }
+    }
+
+    private <T> void supprimerQuestion(ArrayList<T> liste, T question) {
+        if (liste.contains(question)) {
+            liste.remove(question);
+            System.out.println("La question a été supprimée avec succès.");
+        } else {
+            System.out.println("La question que vous voulez supprimer n'existe pas.");
+        }
+    }
+
+    public void modifierQcm(QCM ancienQcm, QCM nouveauQcm) {
+        modifierQuestion(listeQcm, ancienQcm, nouveauQcm);
+    }
+
+    public void modifierQcu(QCU ancienQcu, QCU nouveauQcu) {
+        modifierQuestion(listeQcu, ancienQcu, nouveauQcu);
+    }
+
+    public void modifierTQcm(QuestionLibre ancienQstLibre, QuestionLibre nouveauQstLibre) {
+        modifierQuestion(listeQstLibre, ancienQstLibre, nouveauQstLibre);
+    }
+
+    private <T> void modifierQuestion(ArrayList<T> liste, T ancienneQuestion, T nouvelleQuestion) {
+        if (liste.contains(ancienneQuestion)) {
+            liste.remove(ancienneQuestion);
+            liste.add(nouvelleQuestion);
+        } else {
+            System.out.println("La question à modifier n'existe pas dans la liste.");
+        }
+    }
 
     // Getters and setters for listeQcm
     public ArrayList<QCM> getListeQcm() {
@@ -158,13 +142,4 @@ public class Questionnaire  extends Test {    //extends Test : add it when u pus
     public void setListeQstLibre(ArrayList<QuestionLibre> listeQstLibre) {
         this.listeQstLibre = listeQstLibre;
     }
-
-	public ArrayList<Question> getQuestions() {
-		return listeQuestion;
-	}
 }
-
-
-
-
-

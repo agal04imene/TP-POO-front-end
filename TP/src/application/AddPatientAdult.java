@@ -67,8 +67,8 @@ public class AddPatientAdult {
             String profession = professionField.getText();
             String phone = phoneField.getText();
 
-            DossierAdulte dossierAdulte = new DossierAdulte(infos.name0, infos.surename0, infos.age0, infos.birthday0, infos.birthPlace0, infos.address0, diploma, profession, phone);
-            Anamnese anamnese = new Anamnese ();
+            DossierAdulte dossierAdulte = new DossierAdulte(infos.name0, infos.surename0, infos.age0,  infos.address0,infos.birthday0, infos.birthPlace0, diploma, profession, phone);
+            
             Patient patient = new Patient(dossierAdulte);
 
             comptesUtilisateurs = loadComptesOrthophonisteFromFile();

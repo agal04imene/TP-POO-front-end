@@ -13,9 +13,9 @@ public class Patient implements Serializable {
 	public static int nbPatients ;
 	private Dossier dossierPatient ;
 	private int nbRDV ;
-	private ArrayList<Anamnese> listeAnamneses ;
-	private ArrayList<Questionnaire> listeQuestionnaires;
-	private ArrayList<TestExercices> listeSeriesExos;
+	private ArrayList<Anamnese> listeAnamneses = new ArrayList<>();
+	private ArrayList<Questionnaire> listeQuestionnaires=new ArrayList<>();
+	private ArrayList<TestExercices> listeSeriesExos=new ArrayList<>();
 	
 	public Patient(Dossier dossier) {
 		
@@ -54,6 +54,10 @@ public class Patient implements Serializable {
 
 	public void setNbRDV(int i) {
 		nbRDV = i;
+	}
+	
+	public ArrayList<Anamnese> getListeAnamnese(){
+		return this.listeAnamneses;
 	}
 	
 }

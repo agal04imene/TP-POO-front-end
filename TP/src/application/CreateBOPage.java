@@ -15,7 +15,7 @@ public class CreateBOPage {
     private Stage primaryStage;
     private Orthophoniste orthophoniste;
     private Patient patient;
-    private BO bo;
+    private BO bo=new BO(null);
 
     public CreateBOPage(Stage primaryStage, Patient patient, Orthophoniste orthophoniste) {
         this.primaryStage = primaryStage;

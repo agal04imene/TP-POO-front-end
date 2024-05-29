@@ -39,16 +39,16 @@ public class ViewPatientRecordsPage {
         Button viewAppointmentsButton = createMenuButton("Afficher la liste des rendez-vous");
         viewAppointmentsButton.setOnAction(e -> {
           
-            AgendaView agendaView = new AgendaView(primaryStage);
-            agendaView.load(new Scene(new BorderPane()));
+            PatientsListAgenda patientsListAgenda = new PatientsListAgenda(primaryStage,orthophoniste);
+            patientsListAgenda.load(new Scene(new BorderPane()));
         });
 
         // Option : Afficher l'observation d'un rendez-vous spécifique
-        Button viewAppointmentObservationButton = createMenuButton("Afficher l'observation d'un rendez-vous spécifique");
-        viewAppointmentObservationButton.setOnAction(e -> {
+        Button viewPatientInfosButton = createMenuButton("Afficher les informations du patient");
+        viewPatientInfosButton.setOnAction(e -> {
             
-           // SpecificAppointmentObservationPage specificAppointmentObservationPage = new SpecificAppointmentObservationPage(primaryStage);
-           // specificAppointmentObservationPage.load(scene);
+            ListPatientInfos specificAppointmentObservationPage = new ListPatientInfos(primaryStage,orthophoniste);
+            specificAppointmentObservationPage.load(scene);
         });
 
         // Option : Compte rendu des tests du patient
@@ -77,7 +77,7 @@ public class ViewPatientRecordsPage {
 
         menuOptions.getChildren().addAll(
                 viewAppointmentsButton,
-                viewAppointmentObservationButton,
+                viewPatientInfosButton,
                 patientTestReportsButton,
                 patientAssessmentReportsButton,
                 followUpListsButton

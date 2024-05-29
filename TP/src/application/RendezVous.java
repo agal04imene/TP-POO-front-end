@@ -1,9 +1,17 @@
 package application;
-public class RendezVous {
-    private String date;
+
+import java.io.Serializable;
+
+public class RendezVous implements Serializable {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 3815172255508221715L;
+	private String date;
     private String heure;
     private String Observation;
     protected Type type;
+    private String TypeStr;
     
 	// Le constructeur de la classe RendezVous 
 	 public RendezVous(String date, String heure) {
@@ -40,6 +48,13 @@ public class RendezVous {
 	 public void setType(Type type) {
 		 this.type=type;
 	 }
+	  public void setTypeStr(String t) {
+		  this.TypeStr=t;
+	  }
+	  
+	  public String getTypeStr() {
+		  return this.TypeStr;
+	  }
 	 
 	public void AfficherRendezVous () {
 		System.out.println(" La date du Rendez Vous : "+this.date);

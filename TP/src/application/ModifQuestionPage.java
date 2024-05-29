@@ -1,52 +1,32 @@
 package application;
 
 import java.util.ArrayList;
-import java.util.List;
-
-import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TextArea;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-public class ModifQuestionPage extends Application {
+public class ModifQuestionPage {
 
-    private ArrayList<Question> questions;
+    private Stage primaryStage;
+    private Patient patient;
+    private Orthophoniste orthophoniste;
 
-    @Override
-    public void start(Stage primaryStage) {
+    public ModifQuestionPage(Stage primaryStage, Patient patient, Orthophoniste orthophoniste) {
+        this.primaryStage = primaryStage;
+        this.orthophoniste = orthophoniste;
+        this.patient = patient;
+    }
+
+    public void load(Scene scene) {
         primaryStage.setTitle("Modification de Question");
-
-        questions = new ArrayList<>();
-        
-        // Adding a QCM question
-        QCM qcm = new QCM("Quelle est la capitale de la France ?");
-        qcm.ajoutRepJuste("Paris");
-        qcm.ajoutRepFausse("Lyon");
-        qcm.ajoutRepFausse("Marseille");
-        qcm.ajoutRepFausse("Nice");
-        questions.add(qcm);
-
-        // Adding a QCU question
-        QCU qcu = new QCU("Quelle est la couleur du ciel par temps clair ?");
-        qcu.ajoutRepJuste("Bleu");
-        qcu.ajoutRepFausse("Rouge");
-        qcu.ajoutRepFausse("Vert");
-        qcu.ajoutRepFausse("Jaune");
-        questions.add(qcu);
-
-        // Adding a QuestionLibre question
-        QuestionLibre libre = new QuestionLibre("Décrivez la Révolution française en quelques phrases.");
-        libre.setReponse("La Révolution française est une période de grands changements sociaux et politiques en France de 1789 à 1799.");
-        questions.add(libre);
 
         // Title
         Text title = new Text("Quel type de question souhaitez-vous modifier ?");
@@ -69,24 +49,23 @@ public class ModifQuestionPage extends Application {
         root.getChildren().addAll(title, buttonBox);
 
         // Handlers for buttons
-     // Handlers for buttons
         qcmButton.setOnAction(e -> {
-            primaryStage.setTitle("Modifier une question QCM");
-            chooseQuestion(primaryStage, QCM.class);
+            primaryStage.setTitle("Liste des QCMs");
+            primaryStage.setScene(createQCMListScene(primaryStage));
         });
         qcuButton.setOnAction(e -> {
             primaryStage.setTitle("Modifier une question QCU");
-            chooseQuestion(primaryStage, QCU.class);
+            // Uncomment and implement chooseQuestion(primaryStage, QCU.class);
         });
         libreButton.setOnAction(e -> {
             primaryStage.setTitle("Modifier une question libre");
-            chooseQuestion(primaryStage, QuestionLibre.class);
+            // Uncomment and implement chooseQuestion(primaryStage, QuestionLibre.class);
         });
 
-        // Scene setup
-        Scene scene = new Scene(root, 500, 200);
-        primaryStage.setScene(scene);
-        scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+        // Set the scene to the primary stage
+        Scene mainScene = new Scene(root, 500, 400);
+        mainScene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+        primaryStage.setScene(mainScene);
         primaryStage.show();
         primaryStage.centerOnScreen();
     }
@@ -97,8 +76,8 @@ public class ModifQuestionPage extends Application {
         button.setPrefHeight(60);
         return button;
     }
-    
-    private void chooseQuestion(Stage primaryStage, Class<? extends Question> questionType) {
+
+    private Scene chooseQuestion(Stage primaryStage, Questionnaire questionnaire) {
         VBox root = new VBox(20);
         root.setAlignment(Pos.CENTER);
         root.setPadding(new Insets(20));
@@ -107,21 +86,21 @@ public class ModifQuestionPage extends Application {
         title.setFont(Font.font("Ubuntu", 16));
 
         VBox questionList = new VBox(10);
-        for (Question q : questions) {
-            if (q.getClass().equals(questionType)) {
-                Button questionButton = new Button(q.getEnonce());
-                questionButton.getStyleClass().add("choix-button");
-                questionButton.setOnAction(e -> showModificationOptions(primaryStage, q));
-                questionList.getChildren().add(questionButton);
-            }
+        ArrayList<QCM> questions = questionnaire.getListeQcm();
+        for (QCM q : questions) {
+            Button questionButton = new Button(q.getEnonce());
+            questionButton.getStyleClass().add("choix-button");
+            questionButton.setOnAction(e -> showModificationOptions(primaryStage, q));
+            questionList.getChildren().add(questionButton);
         }
 
         root.getChildren().addAll(title, questionList);
         questionList.setAlignment(Pos.CENTER);
         Scene scene = new Scene(root, 500, 400);
         scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-        primaryStage.centerOnScreen();
         primaryStage.setScene(scene);
+        primaryStage.centerOnScreen();
+        return scene;
     }
 
     private void showModificationOptions(Stage primaryStage, Question question) {
@@ -156,7 +135,6 @@ public class ModifQuestionPage extends Application {
         primaryStage.centerOnScreen();
     }
 
-
     private void modifyEnonce(Stage primaryStage, Question question) {
         VBox root = new VBox(20);
         root.setAlignment(Pos.CENTER);
@@ -172,7 +150,6 @@ public class ModifQuestionPage extends Application {
             String newEnonce = enonceField.getText().trim();
             if (!newEnonce.isEmpty()) {
                 question.setEnonce(newEnonce);
-                primaryStage.close();
             }
         });
 
@@ -201,8 +178,8 @@ public class ModifQuestionPage extends Application {
         if (question instanceof QCM) {
             reponseField.setPromptText("Entrer les nouvelles réponses séparées par des virgules (pas d'espaces)");
         } else {
-        	reponseField.setPromptText("Entrer la nouvelle réponse");
-        	reponseField.setText(((question instanceof QuestionLibre) ? ((QuestionLibre) question).getReponse() : ((QCU) question).getReponse()));
+            reponseField.setPromptText("Entrer la nouvelle réponse");
+            reponseField.setText((question instanceof QuestionLibre) ? ((QuestionLibre) question).getReponse() : ((QCU) question).getReponse());
         }
 
         Button confirmButton = new Button("Confirmer");
@@ -237,7 +214,6 @@ public class ModifQuestionPage extends Application {
         primaryStage.centerOnScreen();
     }
 
-    
     private void modifyChoices(Stage primaryStage, Question question) {
         VBox root = new VBox(20);
         root.setAlignment(Pos.CENTER);
@@ -254,14 +230,14 @@ public class ModifQuestionPage extends Application {
 
             for (String rep : qcm.getReponsesJustes()) {
                 TextField choiceField = new TextField(rep);
-                choiceField.setPromptText(rep); // Placeholder as current choice
+                choiceField.setPromptText(rep);
                 choiceFields.add(choiceField);
                 choicesBox.getChildren().add(choiceField);
             }
 
             for (String rep : qcm.getReponsesFausses()) {
                 TextField choiceField = new TextField(rep);
-                choiceField.setPromptText(rep); // Placeholder as current choice
+                choiceField.setPromptText(rep);
                 choiceFields.add(choiceField);
                 choicesBox.getChildren().add(choiceField);
             }
@@ -304,13 +280,13 @@ public class ModifQuestionPage extends Application {
 
             // Correct answer field
             TextField correctAnswerField = new TextField(qcu.getReponseJuste());
-            correctAnswerField.setPromptText(qcu.getReponseJuste()); // Placeholder as current choice
+            correctAnswerField.setPromptText(qcu.getReponseJuste());
             choiceFields.add(correctAnswerField);
             choicesBox.getChildren().add(correctAnswerField);
 
             for (String rep : qcu.getReponsesFausses()) {
                 TextField choiceField = new TextField(rep);
-                choiceField.setPromptText(rep); // Placeholder as current choice
+                choiceField.setPromptText(rep);
                 choiceFields.add(choiceField);
                 choicesBox.getChildren().add(choiceField);
             }
@@ -345,6 +321,29 @@ public class ModifQuestionPage extends Application {
         primaryStage.centerOnScreen();
     }
 
+    private Scene createQCMListScene(Stage primaryStage) {
+        VBox root = new VBox(10);
+        root.setAlignment(Pos.CENTER);
+        root.setPadding(new Insets(20));
 
+        ArrayList<Questionnaire> listeQuestionnaires = patient.getDossierPatient().getListeQuestionnaire();
+        for (int i = 0; i < listeQuestionnaires.size(); i++) {
+            int index = i;
+            Button qcmButton = new Button("QCM " + (i + 1));
+            qcmButton.setOnAction(e -> {
+                primaryStage.setScene(chooseQuestion(primaryStage, listeQuestionnaires.get(index)));
+                primaryStage.setTitle("Ajouter une question QCM " + (index + 1));
+            });
+            root.getChildren().add(qcmButton);
+        }
 
+        ScrollPane scrollPane = new ScrollPane(root);
+        scrollPane.setFitToWidth(true);
+
+        Scene scene = new Scene(scrollPane, 500, 400);
+        scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+        primaryStage.centerOnScreen();
+
+        return scene;
+    }
 }

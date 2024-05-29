@@ -1,7 +1,10 @@
 package application;
 
-public abstract class QstLibreAnamnese {
+import java.io.Serializable;
+
+public  class QstLibreAnamnese  {
 	
+
 	protected String enonce;
 	protected String reponse;
 	

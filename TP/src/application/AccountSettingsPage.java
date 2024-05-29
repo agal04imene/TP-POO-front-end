@@ -58,6 +58,14 @@ public class AccountSettingsPage {
             editPersonalInfoPage.load(scene);
         });
         
+        // Option : Modifier les informations personnelles
+        Button showPersonalInfoButton = createMenuButton("Afficher les informations personnelles");
+        showPersonalInfoButton.setOnAction(e -> {
+            // Naviguer vers la Page de Modification des Informations Personnelles
+            AfficherInfosCompte editPersonalInfoPage = new  AfficherInfosCompte(primaryStage, orthophoniste);
+            editPersonalInfoPage.load(scene);
+        });
+        
         // Option : Supprimer le compte
         Button deleteAccountButton = createMenuButton("Supprimer le compte");
         deleteAccountButton.setOnAction(e -> {
@@ -69,6 +77,7 @@ public class AccountSettingsPage {
                 changePasswordButton,
                 changeEmailButton,
                 editPersonalInfoButton,
+                showPersonalInfoButton,
                 deleteAccountButton
         );
 

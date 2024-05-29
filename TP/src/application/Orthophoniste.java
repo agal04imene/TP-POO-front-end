@@ -6,6 +6,9 @@ import java.io.Serializable;
 import java.time.* ;
 import java.time.format.* ;
 import java.util.ArrayList;
+
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 public class Orthophoniste implements Serializable {
 
 	/**
@@ -570,15 +573,59 @@ public class Orthophoniste implements Serializable {
    
 	
 	public void ajouterConsultation( Consultation c) {
+		
+		for (Patient patient : this.listePatients) {
+			for (RendezVous rendezVous : patient.getDossierPatient().getListeRendezVous()) {
+				if (c.getHeure().equalsIgnoreCase(rendezVous.getHeure()) && c.getDate().equalsIgnoreCase(rendezVous.getDate())) {
+				    // Show alert for existing rendez-vous
+				    Alert alert = new Alert(AlertType.INFORMATION);
+				    alert.setTitle("Rendez-vous existant");
+				    alert.setHeaderText(null);
+				    alert.setContentText("Il existe un rendez-vous dans cette date/heure !!");
+				    alert.showAndWait();				    
+				    return; 
+				    
+				}
+			}
+		}
+		
 		if (!this.listeConsultation.contains(c)) this.listeConsultation.add(c);
 	}
 
 	
 	public void ajouterSeanceDeSuivi( SeanceDeSuivi s) {
+		for (Patient patient : this.listePatients) {
+			for (RendezVous rendezVous : patient.getDossierPatient().getListeRendezVous()) {
+				if (s.getHeure().equalsIgnoreCase(rendezVous.getHeure()) && s.getDate().equalsIgnoreCase(rendezVous.getDate())) {
+				    // Show alert for existing rendez-vous
+				    Alert alert = new Alert(AlertType.INFORMATION);
+				    alert.setTitle("Rendez-vous existant");
+				    alert.setHeaderText(null);
+				    alert.setContentText("Il existe un rendez-vous dans cette date/heure !!");
+				    alert.showAndWait();				    
+				    return; 
+				    
+				}
+			}
+		}
 		if (!this.listeSeancesSuivi.contains(s)) this.listeSeancesSuivi.add(s);
 	}
 	
 	public void ajouterAtelierDeGroupe(AtelierDeGroupe a) {
+		for (Patient patient : this.listePatients) {
+			for (RendezVous rendezVous : patient.getDossierPatient().getListeRendezVous()) {
+				if (a.getHeure().equalsIgnoreCase(rendezVous.getHeure()) && a.getDate().equalsIgnoreCase(rendezVous.getDate())) {
+				    // Show alert for existing rendez-vous
+				    Alert alert = new Alert(AlertType.INFORMATION);
+				    alert.setTitle("Rendez-vous existant");
+				    alert.setHeaderText(null);
+				    alert.setContentText("Il existe un rendez-vous dans cette date/heure !!");
+				    alert.showAndWait();				    
+				    return; 
+				    
+				}
+			}
+		}
 		if (!this.listeAtelierDeGroupe.contains(a)) this.listeAtelierDeGroupe.add(a);
 	}
 	 @Override

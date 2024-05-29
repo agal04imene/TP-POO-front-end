@@ -1,118 +1,79 @@
 package application;
 
+import java.util.ArrayList;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-import java.awt.Label;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-
 public class AgendaView {
     private Stage primaryStage;
-    private VBox view;
-    private List<RendezVous> rendezVousList;
-    private VBox calendarView;
-    private DatePicker datePicker;
-    private TextArea rendezVousDetails;
+    private Patient patient;
+    private Orthophoniste orthophoniste;
 
-    public AgendaView(Stage primaryStage) {
+    public AgendaView(Stage primaryStage, Patient patient, Orthophoniste orthophoniste) {
         this.primaryStage = primaryStage;
-        view = new VBox(10);
-        view.setPadding(new Insets(10));
-        rendezVousList = new ArrayList<>();
+        this.patient = patient;
+        this.orthophoniste = orthophoniste;
+    }
+
+    public void load(Scene previousScene) {
+        BorderPane root = new BorderPane();
+        root.setPadding(new Insets(20));
 
         // Title
-        Text title = new Text("Agenda");
-        title.setFont(Font.font("Ubuntu", 24));
+        Text title = new Text(patient.getDossierPatient().getNom() + " " + patient.getDossierPatient().getPrenom());
+        title.setFont(Font.font("Ubuntu", 30));
+        title.setFill(Color.web("#00215E"));
         BorderPane.setAlignment(title, Pos.CENTER);
+        root.setTop(title);
 
-        // Date Picker
-        datePicker = new DatePicker(LocalDate.now());
-        datePicker.setOnAction(e -> updateCalendarView());
+        // Content
+        VBox content = new VBox(20);
+        content.setAlignment(Pos.CENTER);
+        content.setPadding(new Insets(20));
 
-        // Rendez-vous Details
-        rendezVousDetails = new TextArea();
-        rendezVousDetails.setPromptText("Enter rendez-vous details...");
+        ArrayList<RendezVous> listeRendezVous = patient.getDossierPatient().getListeRendezVous();
+        int rendezVousCount = 1;
+        for (RendezVous rendezVous : listeRendezVous) {
+            Label dateLabel = createInfoLabel("Date du rendez-vous (" + rendezVousCount + "): " + rendezVous.getDate());
+            Label heureLabel = createInfoLabel("Heure du rendez-vous (" + rendezVousCount + "): " + rendezVous.getHeure());
+            Label typeLabel = createInfoLabel("Type du rendez-vous (" + rendezVousCount + "): " + rendezVous.getTypeStr());
+            Label lineLabel = createInfoLabel("-------------------------------------------------------------------------");
+            rendezVousCount++;
 
-        // Add Rendez-vous Button
-        Button addRendezVousButton = new Button("Add Rendez-vous");
-        addRendezVousButton.setOnAction(e -> addRendezVous());
-
-        HBox controls = new HBox(10, datePicker, addRendezVousButton);
-        controls.setAlignment(Pos.CENTER);
-
-        // Calendar View
-        calendarView = new VBox(10);
-        calendarView.setPadding(new Insets(10));
-        calendarView.setAlignment(Pos.CENTER);
-
-        view.getChildren().addAll(title, controls, rendezVousDetails, calendarView);
-        updateCalendarView();
-    }
-
-    public void load(Scene scene) {
-        Scene agendaScene = new Scene(view, 800, 700);
-        primaryStage.setScene(agendaScene);
-    }
-
-    private void addRendezVous() {
-        LocalDate date = datePicker.getValue();
-        String details = rendezVousDetails.getText();
-        if (details.isEmpty()) {
-            showAlert("No details", "Please enter rendez-vous details.");
-            return;
-        }
-        rendezVousList.add(new RendezVous(date, details));
-        rendezVousDetails.clear();
-        updateCalendarView();
-    }
-
-    private void updateCalendarView() {
-        calendarView.getChildren().clear();
-        LocalDate selectedDate = datePicker.getValue();
-        for (RendezVous rendezVous : rendezVousList) {
-            if (rendezVous.getDate().equals(selectedDate)) {
-                Label rendezVousLabel = new Label(rendezVous.getDetails());
-              //  calendarView.getChildren().add(rendezVousLabel);
-            }
-        }
-    }
-
-    private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-    private class RendezVous {
-        private LocalDate date;
-        private String details;
-
-        public RendezVous(LocalDate date, String details) {
-            this.date = date;
-            this.details = details;
+            content.getChildren().addAll(dateLabel, heureLabel,typeLabel,lineLabel); // Add labels to the content VBox
         }
 
-        public LocalDate getDate() {
-            return date;
-        }
+        // Back button
+        Button backButton = new Button("Retour");
+        backButton.getStyleClass().add("button-style");
+        backButton.setOnAction(e -> {
+            ViewPatientRecordsPage viewPatientRecordsPage = new ViewPatientRecordsPage(primaryStage, orthophoniste);
+            viewPatientRecordsPage.load(previousScene);
+        });
 
-        public String getDetails() {
-            return details;
-        }
+        BorderPane.setAlignment(backButton, Pos.CENTER);
+        root.setBottom(backButton);
+
+        root.setCenter(content);
+
+        Scene scene = new Scene(root, 800, 700);
+        scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+        primaryStage.setScene(scene);
+    }
+
+    private Label createInfoLabel(String text) {
+        Label label = new Label(text);
+        label.getStyleClass().add("info-label");
+        return label;
     }
 }

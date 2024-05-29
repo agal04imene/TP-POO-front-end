@@ -1,9 +1,11 @@
 package application;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class Anamnese {
+public class Anamnese  {
 	
+
 	Set <QstLibreAnamnese> listeQuestions;
 	
 	public Anamnese() {

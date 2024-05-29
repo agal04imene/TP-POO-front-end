@@ -60,6 +60,7 @@ public class GestionDossiersPatients {
             patientsListPage.load(scene);
         });
         
+        
         // Option: Création d'un diagnostic
         Button creerDiagnosticButton = createMenuButton("Ajouter un diagnostic (un ou plusieurs troubles)");
         creerDiagnosticButton.setOnAction(e -> {
@@ -75,7 +76,6 @@ public class GestionDossiersPatients {
             PatientsList_Projet patientsListPage = new PatientsList_Projet(primaryStage, orthophoniste);
             patientsListPage.load(scene);
         });
-        
         
         // Option: Supprimer un Patient
         Button removePatientButton = createMenuButton("Supprimer le dossier d'un Patient");
@@ -99,8 +99,6 @@ public class GestionDossiersPatients {
                 viewPatientRecordsButton,
                 addPatientButton,
                 newBOButton,
-                creerDiagnosticButton,
-                creerProjetButton,
                 removePatientButton
         );
         

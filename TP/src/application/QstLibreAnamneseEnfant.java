@@ -1,6 +1,10 @@
 package application;
 
-public class QstLibreAnamneseEnfant extends QstLibreAnamnese {
+import java.io.Serializable;
+
+public class QstLibreAnamneseEnfant extends QstLibreAnamnese  {
+	
+
 	
 	private TypeQstAnamneseEnfant categorie;
 	
@@ -34,7 +38,7 @@ public class QstLibreAnamneseEnfant extends QstLibreAnamnese {
 	
 	public void setCategorie(String cat) {
 		switch (cat) {
-		case "Antecedents Familiaux" : this.categorie = TypeQstAnamneseEnfant.AntecedentsFamiliaux ; break ;
+		case "Antecedents familiaux" : this.categorie = TypeQstAnamneseEnfant.AntecedentsFamiliaux ; break ;
 		case "Caractère et comportement" : this.categorie = TypeQstAnamneseEnfant.CaractereComportement ; break ;
 		case "Conditions natales" : this.categorie = TypeQstAnamneseEnfant.ConditionsNatales ; break ;
 		case "Développement langagier" : this.categorie = TypeQstAnamneseEnfant.DeveloppementLangagier ; break ;

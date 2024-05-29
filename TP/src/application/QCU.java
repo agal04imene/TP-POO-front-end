@@ -1,13 +1,19 @@
 package application;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class QCU extends Question{
+public class QCU extends Question implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private String reponseJuste;  // une seule réponse juste
 	private ArrayList<String> reponsesFausses;
 	private String reponse;
+	private ArrayList<String> reponses;
 	
 	public String getReponseJuste() {
 		return reponseJuste;
@@ -47,6 +53,9 @@ public class QCU extends Question{
 	}
 	public void repondre(String reponse) {
 		this.reponse=reponse;
+	}
+	public void setReponses(ArrayList<String> reponses) {
+		this.reponses=reponses;
 	}
 	public void afficheReponses()
 	{

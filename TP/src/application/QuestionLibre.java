@@ -1,7 +1,13 @@
 package application;
 
-public class QuestionLibre extends Question {
-    protected String reponse ;
+import java.io.Serializable;
+
+public class QuestionLibre extends Question implements Serializable {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	protected String reponse ;
     
    
 

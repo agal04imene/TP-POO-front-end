@@ -21,12 +21,14 @@ import javafx.stage.Stage;
 
 public class RemovePatientPage {
     private Stage primaryStage;
-    Orthophoniste orthophoniste;
-    private HashSet<Patient> listePatients = new HashSet<Patient>();
+    private Orthophoniste orthophoniste;
+    private HashSet<Patient> listePatients = new HashSet<>();
+    private HashSet<Orthophoniste> comptesUtilisateurs;
 
-    public RemovePatientPage(Stage primaryStage,Orthophoniste orthophoniste) {
+    public RemovePatientPage(Stage primaryStage, Orthophoniste orthophoniste) {
         this.primaryStage = primaryStage;
-        this.orthophoniste= orthophoniste;
+        this.orthophoniste = orthophoniste;
+        this.comptesUtilisateurs = loadComptesOrthophonisteFromFile();
     }
 
     public void load(Scene previousScene) {
@@ -48,21 +50,25 @@ public class RemovePatientPage {
         // Remove button
         Button removeButton = new Button("Supprimer Le patient");
         removeButton.getStyleClass().add("button-style");
-        
+
         // Suppression du patient s'il existe
-        removeButton.setOnAction(e -> {           
+        removeButton.setOnAction(e -> {
             String nom = nomField.getText();
             String prenom = prenomField.getText();
-            
-            listePatients = loadlistePatientsFromFile();
-            boolean patientFound=false;
+
+            listePatients = orthophoniste.getListePatients();
+            boolean patientFound = false;
             for (Patient patient : listePatients) {
                 if (patient.getDossierPatient().getNom().equals(nom) && patient.getDossierPatient().getPrenom().equals(prenom)) {
-                    boolean supp=listePatients.remove(patient);
-                    patientFound=true;
+                    boolean supp = listePatients.remove(patient);
+                    patientFound = true;
                     if (supp) {
-                        savelistePatientsToFile(listePatients);
-                        
+                        if (comptesUtilisateurs.contains(orthophoniste)) {
+                            comptesUtilisateurs.remove(orthophoniste);
+                        }
+                        comptesUtilisateurs.add(orthophoniste);
+                        saveComptesOrthophonisteToFile(comptesUtilisateurs);
+
                         Alert alert = new Alert(AlertType.INFORMATION);
                         alert.setTitle("Suppression réussie");
                         alert.setHeaderText(null);
@@ -77,21 +83,20 @@ public class RemovePatientPage {
                     }
                     break;
                 }
-                if (!patientFound) {
-                    Alert alert = new Alert(AlertType.WARNING);
-                    alert.setTitle("Patient non trouvé");
-                    alert.setHeaderText(null);
-                    alert.setContentText("Il n'y a aucun patient avec ce nom et prénom.");
-                    alert.showAndWait();
-                }
-               }                     
-            
+            }
+            if (!patientFound) {
+                Alert alert = new Alert(AlertType.WARNING);
+                alert.setTitle("Patient non trouvé");
+                alert.setHeaderText(null);
+                alert.setContentText("Il n'y a aucun patient avec ce nom et prénom.");
+                alert.showAndWait();
+            }
         });
 
         // Back button
         Button backButton = new Button("Retour");
         backButton.setOnAction(e -> {
-        	MenuPrincipal menuPrincipal = new MenuPrincipal(primaryStage,orthophoniste);
+            MenuPrincipal menuPrincipal = new MenuPrincipal(primaryStage, orthophoniste);
             menuPrincipal.load(previousScene);
         });
 
@@ -101,32 +106,28 @@ public class RemovePatientPage {
         removePatientScene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
         primaryStage.setScene(removePatientScene);
     }
-    
-    public HashSet<Patient> loadlistePatientsFromFile() {
-        HashSet<Patient> listePatients = null;
-        File f = new File("listPatients.ser");
-        if (!f.exists()) {
-            // If the file doesn't exist, return an empty HashSet
-            return new HashSet<Patient>();
-        }
 
-        try (FileInputStream fileIn = new FileInputStream(f);
-             ObjectInputStream in = new ObjectInputStream(fileIn)) {
-            listePatients = (HashSet<Patient>) in.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        return listePatients;
-    }
-    
-    public void savelistePatientsToFile(HashSet<Patient> listePatients) {
-        File f = new File("listPatients.ser");
+    public void saveComptesOrthophonisteToFile(HashSet<Orthophoniste> comptesUtilisateurs) {
+        File f = new File("comptesOrthophoniste.ser");
         try (FileOutputStream fileOut = new FileOutputStream(f);
              ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
-            out.writeObject(listePatients);
+            out.writeObject(comptesUtilisateurs);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public HashSet<Orthophoniste> loadComptesOrthophonisteFromFile() {
+        HashSet<Orthophoniste> comptesUtilisateurs = new HashSet<>();
+        File f = new File("comptesOrthophoniste.ser");
+        if (f.exists()) {
+            try (FileInputStream fileIn = new FileInputStream(f);
+                 ObjectInputStream in = new ObjectInputStream(fileIn)) {
+                comptesUtilisateurs = (HashSet<Orthophoniste>) in.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        return comptesUtilisateurs;
     }
 }

@@ -94,4 +94,11 @@ public class Dossier implements Serializable {
     public  ArrayList<FicheDeSuivi>  getListeFichesDeSuivi(){
     	return this.historiqueFichesSuivi;
     }
+    
+    public BO getLatestBO() {
+        if (listeBOs.isEmpty()) {
+            return null; // Return null or handle the case where no BOs exist
+        }
+        return listeBOs.get(listeBOs.size() - 1); // Return the last BO in the list
+    }
 }

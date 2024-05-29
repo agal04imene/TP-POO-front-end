@@ -60,6 +60,22 @@ public class GestionDossiersPatients {
             patientsListPage.load(scene);
         });
         
+        // Option: Création d'un diagnostic
+        Button creerDiagnosticButton = createMenuButton("Ajouter un diagnostic (un ou plusieurs troubles)");
+        creerDiagnosticButton.setOnAction(e -> {
+            // Navigate to patients list (to choose one before creating the BO)
+            PatientsList_Diagnostic patientsListPage = new PatientsList_Diagnostic(primaryStage, orthophoniste);
+            patientsListPage.load(scene);
+        });
+        
+        // Option: Création d'un projet therapeutique
+        Button creerProjetButton = createMenuButton("Ajouter un projet thérapeutique");
+        creerProjetButton.setOnAction(e -> {
+            // Navigate to patients list (to choose one before creating the BO)
+            PatientsList_Projet patientsListPage = new PatientsList_Projet(primaryStage, orthophoniste);
+            patientsListPage.load(scene);
+        });
+        
         
         // Option: Supprimer un Patient
         Button removePatientButton = createMenuButton("Supprimer le dossier d'un Patient");
@@ -83,6 +99,8 @@ public class GestionDossiersPatients {
                 viewPatientRecordsButton,
                 addPatientButton,
                 newBOButton,
+                creerDiagnosticButton,
+                creerProjetButton,
                 removePatientButton
         );
         
